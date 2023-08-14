@@ -6,7 +6,7 @@ import { A } from '@ember/array';
 
 import { hbs } from 'ember-cli-htmlbars';
 
-import DEFAULT_THEME from 'ember-yeti-table/-private/themes/default-theme';
+import DEFAULT_THEME from 'ember-yeti-table2/themes/default-theme';
 
 module('Integration | Component | yeti-table (theme)', function (hooks) {
   setupRenderingTest(hooks);

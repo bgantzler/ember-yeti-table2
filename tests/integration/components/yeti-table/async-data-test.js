@@ -12,8 +12,7 @@ import { A } from '@ember/array';
 import { later } from '@ember/runloop';
 
 import { hbs } from 'ember-cli-htmlbars';
-import { timeout } from 'ember-concurrency';
-import { restartableTask } from 'ember-concurrency-decorators';
+import { restartableTask, timeout } from 'ember-concurrency';
 import RSVP from 'rsvp';
 import sinon from 'sinon';
 
@@ -21,7 +20,7 @@ import {
   sortMultiple,
   compareValues,
   mergeSort,
-} from 'ember-yeti-table/-private/utils/sorting-utils';
+} from 'ember-yeti-table2/utils/sorting-utils';
 
 module('Integration | Component | yeti-table (async)', function (hooks) {
   setupRenderingTest(hooks);

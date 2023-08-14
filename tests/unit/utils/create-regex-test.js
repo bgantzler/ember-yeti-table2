@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 
-import createRegex from 'ember-yeti-table/-private/utils/create-regex';
+import createRegex from 'ember-yeti-table2/utils/create-regex';
 
 module('Unit | Utility | create-regex', function () {
   test('matches regardless of word order', function (assert) {

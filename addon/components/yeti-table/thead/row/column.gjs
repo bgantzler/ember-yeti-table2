@@ -36,8 +36,8 @@ import { registerDestructor } from '@ember/destroyable';
  @yield {boolean} column.isAscSorted - `true` if column is sorted ascending
  @yield {boolean} column.isDescSorted - `true` if column is sorted descending
  */
-import didInsert from 'ember-render-modifiers/helpers/did-insert';
-import didUpdate from 'ember-render-modifiers/helpers/did-update';
+import didInsert from '@ember/render-modifiers/modifiers/did-insert';
+import didUpdate from '@ember/render-modifiers/modifiers/did-update';
 import { on } from '@ember/modifier';
 import { fn, hash } from '@ember/helper';
 

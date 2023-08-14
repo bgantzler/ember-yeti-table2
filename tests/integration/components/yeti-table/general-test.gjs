@@ -1,4 +1,4 @@
-import { render } from '@ember/test-helpers';
+import { render, rerender } from '@ember/test-helpers';
 import { click } from '@ember/test-helpers';
 import { setupRenderingTest } from 'ember-qunit';
 import { module, test } from 'qunit';
@@ -6,16 +6,20 @@ import { module, test } from 'qunit';
 import { A } from '@ember/array';
 
 import sinon from 'sinon';
+import { tracked } from '@glimmer/tracking';
 
-import DEFAULT_THEME from 'ember-yeti-table/-private/themes/default-theme';
+import DEFAULT_THEME from 'ember-yeti-table2/themes/default-theme';
 
 import YetiTable from 'ember-yeti-table2/components/yeti-table';
+import { fn } from '@ember/helper';
 
 module('Integration | Component | yeti-table (general)', function (hooks) {
   setupRenderingTest(hooks);
 
+  let data;
+
   hooks.beforeEach(function () {
-    this.data = A([
+    data = A([
       {
         firstName: 'Miguel',
         lastName: 'Andrade',
@@ -62,7 +66,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('body blockless form renders table', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -80,7 +84,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
 
       </YetiTable>
     </template>);
-
+debugger;
     assert.dom('table').exists({ count: 1 });
     assert.dom('table').hasClass(DEFAULT_THEME.table);
     assert.dom('thead').exists({ count: 1 });
@@ -93,7 +97,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('body block form renders table', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -138,7 +142,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('tbody block form renders table and test performs each', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -185,7 +189,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('supports nested properties', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -226,7 +230,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('renders table using head and foot components', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.thead as |head|>
           <head.row as |row|>
@@ -273,7 +277,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('trClass applies a class to the header tr element', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header @trClass="custom-tr-class" as |header|>
           <header.column @prop="firstName">
@@ -298,7 +302,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('columnClass applies a class to each column with blockless body', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -326,7 +330,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('columnClass applies a class to each column with block body', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -365,14 +369,19 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
 
   test('onRowClick action is triggered', async function (assert) {
     assert.expect(2);
+    debugger;
 
-    this.rowClicked = (p) => {
-      assert.equal(p.firstName, 'Miguel');
-    };
+    class row {
+      @tracked
+      rowClicked = (p) => {
+        assert.equal(p.firstName, 'Miguel');
+      };
+    }
+    let rowc = new row();
 
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -386,16 +395,17 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
           </header.column>
         </table.header>
 
-        <table.body @onRowClick={{this.rowClicked}} />
+        <table.body @onRowClick={{rowc.rowClicked}} />
 
       </YetiTable>
     </template>);
 
     await click('tbody tr:nth-child(1)');
 
-    this.set('rowClicked', (p) => {
+    rowc.rowClicked = (p) => {
       assert.equal(p.firstName, 'Tom');
-    });
+    }
+    await rerender();
 
     await click('tbody tr:nth-child(4)');
   });
@@ -403,13 +413,13 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('onClick action is triggered on row component', async function (assert) {
     assert.expect(2);
 
-    this.rowClicked = (p) => {
+    let rowClicked = (p) => {
       assert.equal(p.firstName, 'Miguel');
     };
 
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column>
@@ -424,7 +434,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
         </table.header>
 
         <table.body as |body person|>
-          <body.row @onClick={{fn this.rowClicked person}} as |row|>
+          <body.row @onClick={{fn rowClicked person}} as |row|>
             <row.cell>
               Custom {{person.firstName}}
             </row.cell>
@@ -442,15 +452,16 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
 
     await click('tbody tr:nth-child(1)');
 
-    this.set('rowClicked', (p) => {
+    rowClicked = (p) => {
       assert.equal(p.firstName, 'Tom');
-    });
+    }
+    await rerender();
 
     await click('tbody tr:nth-child(4)');
   });
 
   test('renders with data with arrays', async function (assert) {
-    this.data = [
+    data = [
       ['Miguel', 'Andrade', 1, 2, 3, 4],
       ['José', 'Baderous', 1, 2, 3, 4],
       ['Maria', 'Silva', 1, 2, 3, 4],
@@ -460,7 +471,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
 
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="0">
@@ -491,11 +502,11 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
     assert.dom('table').exists({ count: 1 });
     assert.dom('thead').exists({ count: 1 });
     assert.dom('tbody').exists({ count: 1 });
-    assert.dom('tbody tr').exists({ count: this.data.length });
-    assert.dom('th').exists({ count: this.data[0].length });
-    assert.dom('td').exists({ count: this.data.length * this.data[0].length });
+    assert.dom('tbody tr').exists({ count: data.length });
+    assert.dom('th').exists({ count: data[0].length });
+    assert.dom('td').exists({ count: data.length * data[0].length });
 
-    this.data.forEach((line, row) => {
+    data.forEach((line, row) => {
       line.forEach((data, column) => {
         assert
           .dom(`tbody tr:nth-child(${row + 1}) td:nth-child(${column + 1})`)
@@ -505,17 +516,17 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   });
 
   test('column visibility works with blockless body', async function (assert) {
-    this.visible = true;
+    let visible = true;
 
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
             First name
           </header.column>
-          <header.column @prop="lastName" @visible={{this.visible}}>
+          <header.column @prop="lastName" @visible={{visible}}>
             Last name
           </header.column>
           <header.column @prop="points">
@@ -535,7 +546,8 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
     assert.dom('th').exists({ count: 3 });
     assert.dom('td').exists({ count: 5 * 3 });
 
-    this.set('visible', false);
+    visible = false;
+    await rerender();
 
     assert.dom('table').exists({ count: 1 });
     assert.dom('thead').exists({ count: 1 });
@@ -546,17 +558,17 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   });
 
   test('column visibility works with block body', async function (assert) {
-    this.visible = true;
+    let visible = true;
 
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
             First name
           </header.column>
-          <header.column @prop="lastName" @visible={{this.visible}}>
+          <header.column @prop="lastName" @visible={{visible}}>
             Last name
           </header.column>
           <header.column @prop="points">
@@ -588,7 +600,8 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
     assert.dom('th').exists({ count: 3 });
     assert.dom('td').exists({ count: 5 * 3 });
 
-    this.set('visible', false);
+    visible = false;
+    await rerender();
 
     assert.dom('table').exists({ count: 1 });
     assert.dom('thead').exists({ count: 1 });
@@ -599,13 +612,13 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   });
 
   test('column visibility works with @isColumnVisible', async function (assert) {
-    this.isColumnVisible = (c) => {
+    let isColumnVisible = (c) => {
       return ['firstName', 'points'].includes(c.prop);
     };
 
     await render(
     <template>
-      <YetiTable @data={{this.data}} @isColumnVisible={{this.isColumnVisible}} as |table|>
+      <YetiTable @data={{data}} @isColumnVisible={{isColumnVisible}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -647,7 +660,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('yielded columns, visibleColumns, totalRows and visibleRows are correct', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -685,7 +698,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('can add arbitrary attributes to columns and cells', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column class="custom-class" @columnClass="column-class" data-column="test-column">
@@ -738,7 +751,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('@renderTableElement={{false}} and yielded table component render correctly', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} @renderTableElement={{false}} as |table|>
+      <YetiTable @data={{data}} @renderTableElement={{false}} as |table|>
 
         <table.table>
           <table.header as |header|>
@@ -787,7 +800,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('yielded columns have a name property equal to the trimmed textContent of the headers', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -825,7 +838,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   test('yielded columns have a name property equal to the @name argument, overriding the default', async function (assert) {
     await render(
     <template>
-      <YetiTable @data={{this.data}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName" @name="First name yo!">
@@ -865,11 +878,11 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   });
 
   test('@registerApi is called', async function (assert) {
-    this.registerApi = sinon.spy((table) => (this.tableApi = table));
+    let registerApi = sinon.spy((table) => (this.tableApi = table));
 
     await render(
     <template>
-      <YetiTable @data={{this.data}} @registerApi={{this.registerApi}} as |table|>
+      <YetiTable @data={{data}} @registerApi={{registerApi}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">

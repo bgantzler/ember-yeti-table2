@@ -9,7 +9,7 @@ import { compare } from '@ember/utils';
 
 import { hbs } from 'ember-cli-htmlbars';
 
-import DEFAULT_THEME from 'ember-yeti-table/-private/themes/default-theme';
+import DEFAULT_THEME from 'ember-yeti-table2/themes/default-theme';
 
 module('Integration | Component | yeti-table (sorting)', function (hooks) {
   setupRenderingTest(hooks);

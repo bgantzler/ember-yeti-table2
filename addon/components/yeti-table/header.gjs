@@ -20,7 +20,7 @@ import Component from '@glimmer/component';
  @yield {object} header
  @yield {Component} header.column       the column component
  */
-import THead from 'ember-yeti-table/components/yeti-table/thead/row/column';
+import THead from 'ember-yeti-table2/components/yeti-table/thead/row/column';
 import { fn, hash } from '@ember/helper';
 
 class Header extends Component {

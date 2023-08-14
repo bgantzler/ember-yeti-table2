@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import { A } from '@ember/array';
 
 import { hbs } from 'ember-cli-htmlbars';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 
 module('Integration | Component | yeti-table (pagination)', function (hooks) {
   setupRenderingTest(hooks);
