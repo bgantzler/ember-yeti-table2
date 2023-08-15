@@ -81,6 +81,7 @@ class PaginationData {
   totalPage;
 
   constructor(args) {
+    console.log(this);
     Object.assign(this, args);
   }
 }
@@ -230,6 +231,9 @@ export default class YetiTable extends Component {
   @tracked
   columns = [];
 
+  @tracked
+  resolvedData;
+
   /**
    * An object that contains classes for yeti table to apply when rendering its various table
    * html elements. The theme object your pass in will be deeply merged with yeti-table's default theme
@@ -254,7 +258,7 @@ export default class YetiTable extends Component {
           try {
             const result = await this.data;
             // check if data is still the same promise
-            if (result === this.data && !this.isDestroyed) {
+            if (this.oldData === this.data && !this.isDestroyed) {
               this.resolvedData = result;
               this.isLoading = false;
             }
@@ -272,8 +276,6 @@ export default class YetiTable extends Component {
         }
       }
     }
-
-    return this.processedData;
   }
 
   /**
@@ -283,11 +285,6 @@ export default class YetiTable extends Component {
   oldData;
   get data() {
     return this.args.data;
-  }
-
-  evaluateData() {
-    this.fetchData();
-    return "";
   }
 
   // dataResource = use(this, DataResource(() => {
@@ -379,14 +376,9 @@ export default class YetiTable extends Component {
    * The global filter. If passed in, Yeti Table will search all the rows that contain this
    * string and show them. Defaults to `''`.
    */
-  @tracked
-  _filter;
-
   get filter() {
-    return this._filter;
-  }
-  set filter(value) {
-    this._filter = value ?? '';
+    debugger;
+    return this.args.filter;
   }
 
   /**
@@ -526,6 +518,7 @@ export default class YetiTable extends Component {
 
   @cached
   get normalizedRows() {
+    debugger;
     if (!this.loadData) {
       // sync scenario using @data
       return this.sortedData;
@@ -575,6 +568,7 @@ export default class YetiTable extends Component {
 
   @cached
   get pagedData() {
+    debugger;
     let pagination = this.pagination;
     let data = this.sortedData;
 
@@ -588,6 +582,7 @@ export default class YetiTable extends Component {
 
   @cached
   get processedData() {
+    debugger;
     if (this.loadData) {
       // skip processing and return raw data if remote data is enabled via `loadData`
       return this.resolvedData;
@@ -604,14 +599,18 @@ export default class YetiTable extends Component {
     }
   }
 
+  @cached
   get filteredData() {
+    debugger;
     // only columns that have filterable = true and a prop defined will be considered
     let columns = this.columns.filter(c => c.filterable && isPresent(c.prop));
 
     return filterData(this.resolvedData, columns, this.filter, this.filterFunction, this.filterUsing);
   }
 
+  @cached
   get sortedData() {
+    debugger;
     let data = this.filteredData;
     let sortableColumns = this.columns.filter(c => !isEmpty(c.sort));
     let sortings = sortableColumns.map(c => ({ prop: c.prop, direction: c.sort }));
@@ -626,9 +625,10 @@ export default class YetiTable extends Component {
   }
 
   @action
-  runLoadData() {
+  async runLoadData() {
+    debugger;
     if (this.loadData) {
-      let loadDataFunction = async () => {
+      // let loadDataFunction = async () => {
         let loadData = this.loadData;
         if (typeof loadData === 'function') {
           let param = {};
@@ -671,9 +671,9 @@ export default class YetiTable extends Component {
             this.resolvedData = promise;
           }
         }
-      };
+      // };
 
-      once(loadDataFunction);
+      // once(loadDataFunction);
     }
   }
 

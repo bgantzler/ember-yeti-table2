@@ -1,5 +1,6 @@
 import {
   render,
+  rerender,
   clearRender,
   settled,
   click,
@@ -11,7 +12,6 @@ import { module, test } from 'qunit';
 import { A } from '@ember/array';
 import { later } from '@ember/runloop';
 
-import { hbs } from 'ember-cli-htmlbars';
 import { restartableTask, timeout } from 'ember-concurrency';
 import RSVP from 'rsvp';
 import sinon from 'sinon';
@@ -326,6 +326,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     await clearRender();
 
     assert.ok(loadData.calledOnce, 'loadData was called once');
+
     assert.ok(
       loadData.firstCall.calledWithMatch({
         paginationData: undefined,
@@ -361,7 +362,8 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
+    await render(
+    <template>
       <YetiTable @loadData={{loadData}} @filter={{testParams.filterText}} as |table|>
 
         <table.header as |header|>
@@ -379,18 +381,17 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 }, 'is not filtered');
 
     assert.ok(loadData.calledOnce, 'loadData was called once');
-
+debugger;
     testParams.filterText = 'Baderous';
-
-    await settled();
+    await rerender();
 
     assert.dom('tbody tr').exists({ count: 1 }, 'is filtered');
-
+debugger;
     await clearRender();
 
     assert.ok(loadData.calledTwice, 'loadData was called twice');
