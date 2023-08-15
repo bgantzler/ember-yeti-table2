@@ -13,6 +13,13 @@ import DEFAULT_THEME from 'ember-yeti-table2/themes/default-theme';
 import YetiTable from 'ember-yeti-table2/components/yeti-table';
 import { fn } from '@ember/helper';
 
+class TestParams {
+  @tracked
+  rowClicked;
+  @tracked
+  visible;
+}
+
 module('Integration | Component | yeti-table (general)', function (hooks) {
   setupRenderingTest(hooks);
 
@@ -84,7 +91,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
 
       </YetiTable>
     </template>);
-debugger;
+
     assert.dom('table').exists({ count: 1 });
     assert.dom('table').hasClass(DEFAULT_THEME.table);
     assert.dom('thead').exists({ count: 1 });
@@ -369,15 +376,11 @@ debugger;
 
   test('onRowClick action is triggered', async function (assert) {
     assert.expect(2);
-    debugger;
 
-    class row {
-      @tracked
-      rowClicked = (p) => {
-        assert.equal(p.firstName, 'Miguel');
-      };
-    }
-    let rowc = new row();
+    let testParams = new TestParams();
+    testParams.rowClicked = (p) => {
+      assert.equal(p.firstName, 'Miguel');
+    };
 
     await render(
     <template>
@@ -395,14 +398,14 @@ debugger;
           </header.column>
         </table.header>
 
-        <table.body @onRowClick={{rowc.rowClicked}} />
+        <table.body @onRowClick={{testParams.rowClicked}} />
 
       </YetiTable>
     </template>);
 
     await click('tbody tr:nth-child(1)');
 
-    rowc.rowClicked = (p) => {
+    testParams.rowClicked = (p) => {
       assert.equal(p.firstName, 'Tom');
     }
     await rerender();
@@ -413,7 +416,8 @@ debugger;
   test('onClick action is triggered on row component', async function (assert) {
     assert.expect(2);
 
-    let rowClicked = (p) => {
+    let testParams = new TestParams();
+    testParams.rowClicked = (p) => {
       assert.equal(p.firstName, 'Miguel');
     };
 
@@ -434,7 +438,7 @@ debugger;
         </table.header>
 
         <table.body as |body person|>
-          <body.row @onClick={{fn rowClicked person}} as |row|>
+          <body.row @onClick={{fn testParams.rowClicked person}} as |row|>
             <row.cell>
               Custom {{person.firstName}}
             </row.cell>
@@ -452,7 +456,7 @@ debugger;
 
     await click('tbody tr:nth-child(1)');
 
-    rowClicked = (p) => {
+    testParams.rowClicked = (p) => {
       assert.equal(p.firstName, 'Tom');
     }
     await rerender();
@@ -516,7 +520,8 @@ debugger;
   });
 
   test('column visibility works with blockless body', async function (assert) {
-    let visible = true;
+    let testParams = new TestParams();
+    testParams.visible = true;
 
     await render(
     <template>
@@ -526,7 +531,7 @@ debugger;
           <header.column @prop="firstName">
             First name
           </header.column>
-          <header.column @prop="lastName" @visible={{visible}}>
+          <header.column @prop="lastName" @visible={{testParams.visible}}>
             Last name
           </header.column>
           <header.column @prop="points">
@@ -546,7 +551,7 @@ debugger;
     assert.dom('th').exists({ count: 3 });
     assert.dom('td').exists({ count: 5 * 3 });
 
-    visible = false;
+    testParams.visible = false;
     await rerender();
 
     assert.dom('table').exists({ count: 1 });
@@ -558,7 +563,8 @@ debugger;
   });
 
   test('column visibility works with block body', async function (assert) {
-    let visible = true;
+    let testParams = new TestParams();
+    testParams.visible = true;
 
     await render(
     <template>
@@ -568,7 +574,7 @@ debugger;
           <header.column @prop="firstName">
             First name
           </header.column>
-          <header.column @prop="lastName" @visible={{visible}}>
+          <header.column @prop="lastName" @visible={{testParams.visible}}>
             Last name
           </header.column>
           <header.column @prop="points">
@@ -600,7 +606,7 @@ debugger;
     assert.dom('th').exists({ count: 3 });
     assert.dom('td').exists({ count: 5 * 3 });
 
-    visible = false;
+    testParams.visible = false;
     await rerender();
 
     assert.dom('table').exists({ count: 1 });
@@ -927,6 +933,6 @@ debugger;
       'function',
       'table.reloadData is a function'
     );
-    assert.ok(this.registerApi.calledOnce, '@registerApi is called once');
+    assert.ok(registerApi.calledOnce, '@registerApi is called once');
   });
 });

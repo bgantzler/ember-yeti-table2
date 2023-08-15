@@ -243,7 +243,6 @@ export default class YetiTable extends Component {
   @action
   // poormans helper to re-run data
   async fetchData() {
-    debugger;
     if (this.loadData) {
       this.runLoadData();
     } else {
@@ -600,9 +599,8 @@ export default class YetiTable extends Component {
   constructor(owner, args) {
     super(owner, args);
 
-
-    if (this.registerApi) {
-      scheduleOnce('actions', null, this.registerApi, this.publicApi);
+    if (this.args.registerApi) {
+      scheduleOnce('actions', null, this.args.registerApi, this.publicApi);
     }
   }
 
@@ -761,10 +759,6 @@ export default class YetiTable extends Component {
   }
 
   registerColumn(column) {
-    if (this.isColumnVisible) {
-      column.visible = this.isColumnVisible(column);
-    }
-
     let columns = this.columns;
     if (!columns.includes(column)) {
       this.columns.push(column);

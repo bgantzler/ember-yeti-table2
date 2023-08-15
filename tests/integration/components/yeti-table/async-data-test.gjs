@@ -15,12 +15,31 @@ import { hbs } from 'ember-cli-htmlbars';
 import { restartableTask, timeout } from 'ember-concurrency';
 import RSVP from 'rsvp';
 import sinon from 'sinon';
+import {tracked} from '@glimmer/tracking';
 
 import {
   sortMultiple,
   compareValues,
   mergeSort,
 } from 'ember-yeti-table2/utils/sorting-utils';
+
+class TestParams {
+  @tracked
+  dataPromise;
+  @tracked
+  filterText;
+  @tracked
+  sortDir;
+  @tracked
+  pageNumber;
+  @tracked
+  totalRows;
+}
+
+import YetiTable from 'ember-yeti-table2/components/yeti-table';
+import { on } from '@ember/modifier';
+import { fn } from '@ember/helper';
+
 
 module('Integration | Component | yeti-table (async)', function (hooks) {
   setupRenderingTest(hooks);
@@ -84,10 +103,12 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   ]);
 
   test('passing a promise as `data` works after resolving promise', async function (assert) {
-    this.dataPromise = [];
+    let testParams = new TestParams();
+    testParams.dataPromise = [];
 
-    await render(hbs`
-      <YetiTable @data={{this.dataPromise}} as |table|>
+    await render(
+    <template>
+      <YetiTable @data={{testParams.dataPromise}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -104,16 +125,15 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>
+    );
 
-    this.set(
-      'dataPromise',
-      new RSVP.Promise((resolve) => {
+    testParams.dataPromise = new RSVP.Promise(
+      (resolve) => {
         later(() => {
           resolve(this.data);
         }, 150);
-      })
-    );
+      });
 
     assert.dom('tbody tr').doesNotExist();
 
@@ -123,10 +143,12 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   });
 
   test('yielded isLoading boolean is true while promise is not resolved', async function (assert) {
-    this.dataPromise = [];
+    let testParams = new TestParams();
+    testParams.dataPromise = [];
 
-    await render(hbs`
-      <YetiTable @data={{this.dataPromise}} as |table|>
+    await render(
+    <template>
+      <YetiTable @data={{testParams.dataPromise}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -147,15 +169,14 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         {{/if}}
 
       </YetiTable>
-    `);
+    </template>);
 
-    this.set(
-      'dataPromise',
-      new RSVP.Promise((resolve) => {
+    testParams.dataPromise = new RSVP.Promise(
+      (resolve) => {
         later(() => {
           resolve(this.data);
         }, 150);
-      })
+      }
     );
 
     await waitFor('.loading-message');
@@ -168,10 +189,12 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   });
 
   test('updating `data` after passing in a promise ignores first promise, respecting order', async function (assert) {
-    this.dataPromise = [];
+    let testParams = new TestParams();
+    testParams.dataPromise = [];
 
-    await render(hbs`
-      <YetiTable @data={{this.dataPromise}} as |table|>
+    await render(
+    <template>
+      <YetiTable @data={{testParams.dataPromise}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -188,26 +211,24 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
-    this.set(
-      'dataPromise',
-      new RSVP.Promise((resolve) => {
+    testParams.dataPromise = new RSVP.Promise(
+      (resolve) => {
         later(() => {
           resolve(this.data);
         }, 150);
-      })
+      }
     );
 
     assert.dom('tbody tr').doesNotExist();
 
-    this.set(
-      'dataPromise',
-      new RSVP.Promise((resolve) => {
+    testParams.dataPromise = new RSVP.Promise(
+      (resolve) => {
         later(() => {
           resolve(this.data2);
         }, 10);
-      })
+      }
     );
 
     await settled();
@@ -219,7 +240,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   });
 
   test('yielded isLoading boolean is true while loadData promise is not resolved', async function (assert) {
-    this.loadData = sinon.spy(() => {
+    let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           resolve(this.data);
@@ -227,8 +248,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    render(hbs`
-      <YetiTable @loadData={{this.loadData}} as |table|>
+    render(
+    <template>
+      <YetiTable @loadData={{loadData}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -249,7 +271,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         {{/if}}
 
       </YetiTable>
-    `);
+    </template>);
 
     await waitFor('.loading-message');
 
@@ -261,7 +283,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   });
 
   test('loadData is called with correct parameters', async function (assert) {
-    this.loadData = sinon.spy(() => {
+    let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           resolve(this.data);
@@ -269,8 +291,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} @filter="Miguel" as |table|>
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} @filter="Miguel" as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -287,7 +310,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 }, 'is not filtered');
     assert
@@ -302,9 +325,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
     assert.ok(
-      this.loadData.firstCall.calledWithMatch({
+      loadData.firstCall.calledWithMatch({
         paginationData: undefined,
         sortData: [{ prop: 'lastName', direction: 'desc' }],
         filterData: {
@@ -321,8 +344,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
   test('loadData is called when updating filter', async function (assert) {
     assert.expect();
+    let testParams = new TestParams();
+    testParams.filterText = undefined;
 
-    this.loadData = sinon.spy(({ filterData }) => {
+    let loadData = sinon.spy(({ filterData }) => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           let data = this.data;
@@ -337,7 +362,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     });
 
     await render(hbs`
-      <YetiTable @loadData={{this.loadData}} @filter={{this.filterText}} as |table|>
+      <YetiTable @loadData={{loadData}} @filter={{testParams.filterText}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -358,9 +383,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     assert.dom('tbody tr').exists({ count: 5 }, 'is not filtered');
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
 
-    this.set('filterText', 'Baderous');
+    testParams.filterText = 'Baderous';
 
     await settled();
 
@@ -368,12 +393,12 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledTwice, 'loadData was called twice');
+    assert.ok(loadData.calledTwice, 'loadData was called twice');
     assert.ok(
-      this.loadData.firstCall.calledWithMatch({ filterData: { filter: '' } })
+      loadData.firstCall.calledWithMatch({ filterData: { filter: '' } })
     );
     assert.ok(
-      this.loadData.secondCall.calledWithMatch({
+        loadData.secondCall.calledWithMatch({
         filterData: { filter: 'Baderous' },
       })
     );
@@ -382,7 +407,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called when updating sorting', async function (assert) {
     assert.expect();
 
-    this.loadData = sinon.spy(({ sortData }) => {
+    let testParams = new TestParams();
+
+    let loadData = sinon.spy(({ sortData }) => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           let data = this.data;
@@ -398,14 +425,15 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} as |table|>
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
             First name
           </header.column>
-          <header.column @prop="lastName" @sort={{this.sortDir}}>
+          <header.column @prop="lastName" @sort={{testParams.sortDir}}>
             Last name
           </header.column>
           <header.column @prop="points">
@@ -416,16 +444,16 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 });
     assert.dom('tbody tr:nth-child(1) td:nth-child(1)').hasText('Miguel');
     assert.dom('tbody tr:nth-child(1) td:nth-child(2)').hasText('Andrade');
     assert.dom('tbody tr:nth-child(1) td:nth-child(3)').hasText('1');
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
 
-    this.set('sortDir', 'desc');
+    testParams.sortDir = 'desc';
 
     await settled();
 
@@ -436,10 +464,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledTwice, 'loadData was called twice');
-    assert.ok(this.loadData.firstCall.calledWithMatch({ sortData: [] }));
+    assert.ok(loadData.calledTwice, 'loadData was called twice');
+    assert.ok(loadData.firstCall.calledWithMatch({ sortData: [] }));
     assert.ok(
-      this.loadData.secondCall.calledWithMatch({
+      loadData.secondCall.calledWithMatch({
         sortData: [{ prop: 'lastName', direction: 'desc' }],
       })
     );
@@ -448,7 +476,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called when clicking a sortable header', async function (assert) {
     assert.expect();
 
-    this.loadData = sinon.spy(({ sortData }) => {
+    let loadData = sinon.spy(({ sortData }) => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           let data = this.data;
@@ -464,8 +492,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} as |table|>
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -482,14 +511,14 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 });
     assert.dom('tbody tr:nth-child(1) td:nth-child(1)').hasText('Miguel');
     assert.dom('tbody tr:nth-child(1) td:nth-child(2)').hasText('Andrade');
     assert.dom('tbody tr:nth-child(1) td:nth-child(3)').hasText('1');
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
 
     await click('thead tr th:nth-child(1)');
 
@@ -500,10 +529,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledTwice, 'loadData was called twice');
-    assert.ok(this.loadData.firstCall.calledWithMatch({ sortData: [] }));
+    assert.ok(loadData.calledTwice, 'loadData was called twice');
+    assert.ok(loadData.firstCall.calledWithMatch({ sortData: [] }));
     assert.ok(
-      this.loadData.secondCall.calledWithMatch({
+      loadData.secondCall.calledWithMatch({
         sortData: [{ prop: 'firstName', direction: 'asc' }],
       })
     );
@@ -512,7 +541,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called when changing page', async function (assert) {
     assert.expect();
 
-    this.loadData = sinon.spy(({ paginationData }) => {
+    let loadData = sinon.spy(({ paginationData }) => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           let pages = [this.data, this.data2];
@@ -521,8 +550,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} @pagination={{true}} @totalRows={{10}} @pageSize={{5}} as |table|>
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} @pagination={{true}} @totalRows={{10}} @pageSize={{5}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -543,14 +573,14 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         </button>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 });
     assert.dom('tbody tr:nth-child(1) td:nth-child(1)').hasText('Miguel');
     assert.dom('tbody tr:nth-child(1) td:nth-child(2)').hasText('Andrade');
     assert.dom('tbody tr:nth-child(1) td:nth-child(3)').hasText('1');
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
 
     await click('button#next');
 
@@ -561,9 +591,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledTwice, 'loadData was called twice');
+    assert.ok(loadData.calledTwice, 'loadData was called twice');
     assert.ok(
-      this.loadData.firstCall.calledWithMatch({
+      loadData.firstCall.calledWithMatch({
         paginationData: {
           pageSize: 5,
           pageNumber: 1,
@@ -578,7 +608,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     );
 
     assert.ok(
-      this.loadData.secondCall.calledWithMatch({
+      loadData.secondCall.calledWithMatch({
         paginationData: {
           pageSize: 5,
           pageNumber: 2,
@@ -596,7 +626,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called when changing page through @pageNumber arg', async function (assert) {
     assert.expect();
 
-    this.loadData = sinon.spy(({ paginationData }) => {
+    let loadData = sinon.spy(({ paginationData }) => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           let pages = [this.data, this.data2];
@@ -605,10 +635,12 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    this.set('pageNumber', 1);
+    let testParams = new TestParams();
+    testParams.pageNumber = 1;
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} @pagination={{true}} @totalRows={{10}} @pageSize={{5}} @pageNumber={{this.pageNumber}} as |table|>
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} @pagination={{true}} @totalRows={{10}} @pageSize={{5}} @pageNumber={{testParams.pageNumber}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -629,16 +661,16 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         </button>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 });
     assert.dom('tbody tr:nth-child(1) td:nth-child(1)').hasText('Miguel');
     assert.dom('tbody tr:nth-child(1) td:nth-child(2)').hasText('Andrade');
     assert.dom('tbody tr:nth-child(1) td:nth-child(3)').hasText('1');
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
 
-    this.set('pageNumber', 2);
+    testParams.pageNumber = 2;
 
     await settled();
 
@@ -649,9 +681,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledTwice, 'loadData was called twice');
+    assert.ok(loadData.calledTwice, 'loadData was called twice');
     assert.ok(
-      this.loadData.firstCall.calledWithMatch({
+      loadData.firstCall.calledWithMatch({
         paginationData: {
           pageSize: 5,
           pageNumber: 1,
@@ -666,7 +698,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     );
 
     assert.ok(
-      this.loadData.secondCall.calledWithMatch({
+      loadData.secondCall.calledWithMatch({
         paginationData: {
           pageSize: 5,
           pageNumber: 2,
@@ -684,7 +716,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called when changing page with @onPageNumberChange (see #301)', async function (assert) {
     assert.expect();
 
-    this.loadData = sinon.spy(({ paginationData }) => {
+    let loadData = sinon.spy(({ paginationData }) => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           let pages = [this.data, this.data2];
@@ -693,10 +725,12 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    this.set('pageNumber', 1);
+    let testParams = new TestParams();
+    testParams.pageNumber = 1;
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} @pagination={{true}} @totalRows={{10}} @pageSize={{5}} @pageNumber={{this.pageNumber}} as |table|>
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} @pagination={{true}} @totalRows={{10}} @pageSize={{5}} @pageNumber={{testParams.pageNumber}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -717,14 +751,14 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         </button>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 });
     assert.dom('tbody tr:nth-child(1) td:nth-child(1)').hasText('Miguel');
     assert.dom('tbody tr:nth-child(1) td:nth-child(2)').hasText('Andrade');
     assert.dom('tbody tr:nth-child(1) td:nth-child(3)').hasText('1');
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
 
     await click('button#next');
 
@@ -735,9 +769,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledTwice, 'loadData was called twice');
+    assert.ok(loadData.calledTwice, 'loadData was called twice');
     assert.ok(
-      this.loadData.firstCall.calledWithMatch({
+      loadData.firstCall.calledWithMatch({
         paginationData: {
           pageSize: 5,
           pageNumber: 1,
@@ -752,7 +786,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     );
 
     assert.ok(
-      this.loadData.secondCall.calledWithMatch({
+      loadData.secondCall.calledWithMatch({
         paginationData: {
           pageSize: 5,
           pageNumber: 2,
@@ -768,7 +802,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   });
 
   test('loadData is called once if updated totalRows on the loadData function', async function (assert) {
-    this.loadData = sinon.spy(() => {
+    let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           this.set('totalRows', this.data.length);
@@ -777,8 +811,11 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} @pagination={{true}} @pageSize={{10}} @totalRows={{this.totalRows}} as |table|>
+    let testParams = new TestParams();
+
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} @pagination={{true}} @pageSize={{10}} @totalRows={{testParams.totalRows}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -795,7 +832,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 }, 'is not filtered');
     assert
@@ -810,11 +847,11 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
   });
 
   test('loadData is called once if we change @filter from undefined to ""', async function (assert) {
-    this.loadData = sinon.spy(() => {
+    let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           resolve(this.data);
@@ -822,8 +859,11 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} @filter={{this.filterText}} as |table|>
+    let testParams = new TestParams();
+
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} @filter={{testParams.filterText}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -840,7 +880,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 }, 'is not filtered');
     assert
@@ -853,7 +893,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       .dom('tbody tr:nth-child(5) td:nth-child(3)')
       .hasText('5', 'column 3 is not sorted');
 
-    this.set('filterText', '');
+    testParams.filterText = '';
 
     await clearRender();
 
@@ -876,12 +916,13 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       }
     }
 
-    this.obj = new Obj();
+    let obj = new Obj();
 
-    this.set('filterText', 'Migu');
+    let testParams = new TestParams();
+    testParams.filterText = 'Migu';
 
-    render(hbs`
-      <YetiTable @loadData={{perform this.obj.loadData}} @filter={{this.filterText}} as |table|>
+    render(<template>
+      <YetiTable @loadData={{perform obj.loadData}} @filter={{testParams.filterText}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -898,10 +939,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     setTimeout(() => {
-      this.set('filterText', 'Tom');
+      testParams.filterText = 'Tom';
     }, 50);
 
     await settled();
@@ -920,7 +961,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   });
 
   test('reloadData from @registerApi reruns the @loadData function', async function (assert) {
-    this.loadData = sinon.spy(() => {
+    let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           resolve(this.data);
@@ -928,8 +969,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} @registerApi={{fn (mut this.tableApi)}} as |table|>
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} @registerApi={{fn (mut this.tableApi)}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -946,11 +988,11 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 }, 'has only five rows');
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
 
     this.data.addObject({
       firstName: 'New',
@@ -967,11 +1009,11 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledTwice, 'loadData was called twice');
+    assert.ok(loadData.calledTwice, 'loadData was called twice');
   });
 
   test('reloadData from yielded action reruns the @loadData function', async function (assert) {
-    this.loadData = sinon.spy(() => {
+    let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
           resolve(this.data);
@@ -979,8 +1021,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    await render(hbs`
-      <YetiTable @loadData={{this.loadData}} as |table|>
+    await render(
+    <template>
+      <YetiTable @loadData={{loadData}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -1001,11 +1044,11 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         </button>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').exists({ count: 5 }, 'has only five rows');
 
-    assert.ok(this.loadData.calledOnce, 'loadData was called once');
+    assert.ok(loadData.calledOnce, 'loadData was called once');
 
     this.data.addObject({
       firstName: 'New',
@@ -1021,6 +1064,6 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     await clearRender();
 
-    assert.ok(this.loadData.calledTwice, 'loadData was called twice');
+    assert.ok(loadData.calledTwice, 'loadData was called twice');
   });
 });

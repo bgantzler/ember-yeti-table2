@@ -4,6 +4,7 @@ import { isArray } from '@ember/array';
 import { assert } from '@ember/debug';
 import { action } from '@ember/object';
 import { registerDestructor } from '@ember/destroyable';
+import { tracked } from '@glimmer/tracking';
 
 /**
  An important component yielded from the header or head.row component that is used to define
@@ -90,8 +91,12 @@ export default class Column extends Component {
      * @type {Boolean}
      */
     get visible() {
-        return this.args.visible ?? true;
-    };
+        if (this.args.parent.isColumnVisible) {
+            return this.args.parent.isColumnVisible(this);
+        } else {
+            return this.args.visible ?? true;
+        }
+    }
 
     /**
      * Used to turn off sorting clicking on this column (clicks won't toggle sorting anymore).
@@ -194,12 +199,13 @@ export default class Column extends Component {
      * It defaults to the trimmed `textContent` of the `<th>` element, but can be overridden
      * by using a `@name="your custom name"` argument.
      */
-    #_name;
+    @tracked
+    _name;
     get name() {
-        return this.args.name ?? this.#_name;
+        return this.args.name ?? this._name;
     }
     set name(value) {
-        this.#_name = value;
+        this._name = value;
     }
 
     /**
