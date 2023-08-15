@@ -4,7 +4,7 @@ import { cached, tracked } from '@glimmer/tracking';
 import DEFAULT_THEME from 'ember-yeti-table2/themes/default-theme';
 
 import { getOwner } from '@ember/application';
-import { action } from '@ember/object';
+import { action, notifyPropertyChange } from '@ember/object';
 import { once, scheduleOnce } from '@ember/runloop';
 import { isEmpty, isPresent } from '@ember/utils';
 
@@ -351,8 +351,14 @@ export default class YetiTable extends Component {
   /**
    * Controls the current page to show. Default is `1`.
    */
+  @tracked
+  _pageNumber = this.args.pageNumber || 1;
   get pageNumber() {
-    return this.args.pageNumber || 1;
+    return this.args.onPageNumberChaged ? this.args.pageNumber : this._pageNumber;
+  }
+  set pageNumber(value) {
+    this._pageNumber = value;
+    this.args.onPageNumberChanged?.(value);
   }
 
   /**
@@ -378,7 +384,7 @@ export default class YetiTable extends Component {
    */
   get filter() {
     debugger;
-    return this.args.filter;
+    return this.args.filter || '';
   }
 
   /**
@@ -624,13 +630,10 @@ export default class YetiTable extends Component {
     return data;
   }
 
-  @action
   async runLoadData() {
     debugger;
-    if (this.loadData) {
-      // let loadDataFunction = async () => {
-        let loadData = this.loadData;
-        if (typeof loadData === 'function') {
+    if (isPresent(this.columns) && this.loadData && typeof this.loadData === 'function') {
+        // if (typeof loadData === 'function') {
           let param = {};
 
           if (this.pagination) {
@@ -647,13 +650,15 @@ export default class YetiTable extends Component {
               filterUsing: c.filterUsing
             }))
           };
+      let loadDataFunction = async (param) => {
+        let loadData = this.loadData;
 
-          let promise = loadData(param);
-
-          if (promise && promise.then) {
+          // let promise = loadData(param);
+          //
+          // if (promise && promise.then) {
             this.isLoading = true;
             try {
-              let resolvedData = await promise;
+              let resolvedData = await loadData(param);
               if (!this.isDestroyed) {
                 this.resolvedData = resolvedData;
                 this.isLoading = false;
@@ -667,50 +672,44 @@ export default class YetiTable extends Component {
                 throw e;
               }
             }
-          } else {
-            this.resolvedData = promise;
-          }
-        }
-      // };
+          // } else {
+          //   this.resolvedData = promise;
+          // }
+        // }
+      };
 
-      // once(loadDataFunction);
+      once(loadDataFunction, param);
     }
   }
 
   @action
   onColumnSort(column, e) {
+    let direction;
+
     if (column.isSorted) {
       // if this column is already sorted, calculate the next
       // sorting on the sequence.
-      let direction = column.sort;
+      direction = column.sort;
       let sortSequence = column.normalizedSortSequence;
       direction = sortSequence[(sortSequence.indexOf(direction) + 1) % sortSequence.length];
 
       if (direction === 'unsorted') {
         direction = null;
       }
-      column.sort = direction;
-
-      if (!e.shiftKey) {
-        // if not pressed shift, reset other column sortings
-        let columns = this.columns.filter(c => c !== column);
-        columns.forEach(c => c.sort = null);
-      }
     } else {
       // use first direction from sort sequence
-      let direction = column.normalizedSortSequence[0];
+      direction = column.normalizedSortSequence[0];
       // create new sorting
-      column.sort = direction;
-
-      // normal click replaces all sortings with the new one
-      // shift click adds a new sorting to the existing ones
-      if (!e.shiftKey) {
-        // if not pressed shift, reset other column sortings
-        let columns = this.columns.filter(c => c !== column);
-        columns.forEach(c => c.sort = null);
-      }
     }
-    this.runLoadData();
+
+    column.sort = direction;
+
+    if (!e.shiftKey) {
+      // if not pressed shift, reset other column sortings
+      let columns = this.columns.filter(c => c !== column);
+      columns.forEach(c => c.sort = null);
+    }
+
   }
 
   @action
@@ -718,7 +717,8 @@ export default class YetiTable extends Component {
     if (this.pagination) {
       let { pageNumber } = this.paginationData;
       this.pageNumber = Math.max(pageNumber - 1, 1);
-      this.runLoadData();
+      // TODO: is this needed?
+      // this.runLoadData();
     }
   }
 
@@ -729,7 +729,8 @@ export default class YetiTable extends Component {
 
       if (!isLastPage) {
         this.pageNumber = pageNumber + 1;
-        this.runLoadData();
+        // TODO: is this needed?
+        // this.runLoadData();
       }
     }
   }
@@ -745,7 +746,8 @@ export default class YetiTable extends Component {
       }
 
       this.pageNumber = pageNumber;
-      this.runLoadData();
+      // TODO: is this needed?
+      // this.runLoadData();
     }
   }
 
@@ -754,7 +756,8 @@ export default class YetiTable extends Component {
     if (this.pagination) {
       this.pageSize = parseInt(pageSize);
       this.pageSize = parseInt(pageSize);
-      this.runLoadData();
+      // TODO: is this needed?
+      // this.runLoadData();
     }
   }
 
@@ -762,8 +765,8 @@ export default class YetiTable extends Component {
     let columns = this.columns;
     if (!columns.includes(column)) {
       this.columns.push(column);
-      // let notifyVisibleColumnsPropertyChange = () => this.notifyPropertyChange('visibleColumns');
-      // once(notifyVisibleColumnsPropertyChange);
+      let notifyColumnsPropertyChange = () => notifyPropertyChange(this, 'columns');
+      once(notifyColumnsPropertyChange);
     }
   }
 

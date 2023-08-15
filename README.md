@@ -30,3 +30,8 @@ See the [Contributing](CONTRIBUTING.md) guide for details.
 ## License
 
 This project is licensed under the [MIT License](LICENSE.md).
+
+
+
+## Breaking change. 
+Sort is initial only. To allow changes, you have to supply an onSort function and change the value

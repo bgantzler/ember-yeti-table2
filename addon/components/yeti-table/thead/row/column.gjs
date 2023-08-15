@@ -51,7 +51,6 @@ export default class Column extends Component {
                 class="{{@class}} {{@theme.theadCell}} {{if this.sortable @theme.sorting.columnSortable}} {{if this.isSorted @theme.sorting.columnSorted}} {{if this.isAscSorted @theme.sorting.columnSortedAsc}} {{if this.isDescSorted @theme.sorting.columnSortedDesc}}"
                 {{on "click" (if this.sortable (fn @onClick this) this.noop)}}
                 {{didInsert this.updateName}}
-                {{didUpdate this.runLoadData @filterText @filter @filterUsing @sort}}
                 ...attributes>
                 {{yield (hash
                             isSorted=this.isSorted
@@ -113,13 +112,29 @@ export default class Column extends Component {
     /**
      * Optionally use an `asc` or `desc` string on this argument to turn on ascending or descending sorting
      * on this column. Useful to turn on default sortings on the table.
-
+     *
+     * This value is an initial value only unless you supply an onSort function. If supplied, this function
+     * should change the external value to re-pass back
+     *
      * @argument sort
      * @type {String}
      */
+    @tracked
+    _sort = this.args.sort;
     get sort() {
-        return this.args.sort;
-    };
+        return this.args.onSortChanged ? this.args.sort : this._sort;
+    }
+    set sort(value) {
+        this._sort = value;
+        this.args.onSortChanged?.(value);
+    }
+
+    /**
+     * Method that informs you what the new sort value is when this column is clicked.
+     *
+     * @argument onSort
+     * @type function
+     */
 
     /**
      * Use `@sortSequence` to customize the sequence in which the sorting order will cycle when

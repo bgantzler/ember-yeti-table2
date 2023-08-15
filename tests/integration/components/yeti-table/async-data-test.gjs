@@ -339,7 +339,8 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
             { prop: 'points', filter: undefined, filterUsing: undefined },
           ],
         },
-      })
+      }),
+      "First call has correct params"
     );
   });
 
@@ -348,18 +349,15 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     let testParams = new TestParams();
     testParams.filterText = undefined;
 
-    let loadData = sinon.spy(({ filterData }) => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          let data = this.data;
+    let loadData = sinon.spy(async ({ filterData }) => {
+      await timeout(150);
+      let data = this.data;
 
-          if (filterData.filter) {
-            data = data.filter((p) => p.lastName.includes(filterData.filter));
-          }
+      if (filterData.filter) {
+        data = data.filter((p) => p.lastName.includes(filterData.filter));
+      }
 
-          resolve(data);
-        }, 150);
-      });
+      return data;
     });
 
     await render(
@@ -386,22 +384,24 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     assert.dom('tbody tr').exists({ count: 5 }, 'is not filtered');
 
     assert.ok(loadData.calledOnce, 'loadData was called once');
-debugger;
+
     testParams.filterText = 'Baderous';
-    await rerender();
+    await settled();
 
     assert.dom('tbody tr').exists({ count: 1 }, 'is filtered');
-debugger;
+
     await clearRender();
 
     assert.ok(loadData.calledTwice, 'loadData was called twice');
     assert.ok(
-      loadData.firstCall.calledWithMatch({ filterData: { filter: '' } })
+      loadData.firstCall.calledWithMatch({ filterData: { filter: '' } }),
+      "First call has correct params"
     );
     assert.ok(
         loadData.secondCall.calledWithMatch({
         filterData: { filter: 'Baderous' },
-      })
+      }),
+
     );
   });
 
@@ -434,7 +434,7 @@ debugger;
           <header.column @prop="firstName">
             First name
           </header.column>
-          <header.column @prop="lastName" @sort={{testParams.sortDir}}>
+          <header.column @prop="lastName" @sort={{testParams.sortDir}} @onSortChanged={{mut testParams.sortDir}}>
             Last name
           </header.column>
           <header.column @prop="points">
@@ -641,7 +641,10 @@ debugger;
 
     await render(
     <template>
-      <YetiTable @loadData={{loadData}} @pagination={{true}} @totalRows={{10}} @pageSize={{5}} @pageNumber={{testParams.pageNumber}} as |table|>
+      <YetiTable @loadData={{loadData}} @pagination={{true}}
+                 @totalRows={{10}} @pageSize={{5}}
+                 @pageNumber={{testParams.pageNumber}} @onPageNumberChanged={{mut testParams.pageNumber}}
+                 as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -674,7 +677,7 @@ debugger;
     testParams.pageNumber = 2;
 
     await settled();
-
+debugger;
     assert.dom('tbody tr').exists({ count: 5 });
     assert.dom('tbody tr:nth-child(1) td:nth-child(1)').hasText('A');
     assert.dom('tbody tr:nth-child(1) td:nth-child(2)').hasText('B');
