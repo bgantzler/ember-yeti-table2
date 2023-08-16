@@ -13,6 +13,7 @@ import merge from 'deepmerge';
 import filterData from 'ember-yeti-table2/utils/filtering-utils';
 import { sortMultiple, compareValues, mergeSort } from 'ember-yeti-table2/utils/sorting-utils';
 
+import {arg} from '../decorator/args';
 /**
  * bring ember-concurrency didCancel helper instead of
  * including the whole dependency
@@ -247,6 +248,7 @@ export default class YetiTable extends Component {
   @action
   // poormans helper to re-run data
   fetchData() {
+    debugger;
     if (this.loadData) {
       this.runLoadData();
     } else {
@@ -356,16 +358,18 @@ export default class YetiTable extends Component {
   /**
    * Controls the current page to show. Default is `1`.
    */
-  @tracked
-  _pageNumber = this.args.pageNumber || 1;
-  get pageNumber() {
-    return this.args.onPageNumberChanged ? this.args.pageNumber : this._pageNumber;
-  }
-  set pageNumber(value) {
-    this._pageNumber = value;
-    this.args.onPageNumberChanged?.(value);
-  }
+  // @tracked
+  // _pageNumber = this.args.pageNumber || 1;
+  // get pageNumber() {
+  //   return this.args.onPageNumberChanged ? this.args.pageNumber : this._pageNumber;
+  // }
+  // set pageNumber(value) {
+  //   this._pageNumber = value;
+  //   this.args.onPageNumberChanged?.(value);
+  // }
 
+  @arg({default: 1, updatable: true})
+  pageNumber;
   /**
    * Optional argument that informs yeti table of how many rows your data has.
    * Only needed when using a `@loadData` function and `@pagination={{true}}`.
@@ -373,7 +377,6 @@ export default class YetiTable extends Component {
    * This information is used to calculate the pagination information that is yielded
    * and passed to the `@loadData` function.
    */
-  @cached
   get totalRows() {
     return this.args.totalRows;
   }

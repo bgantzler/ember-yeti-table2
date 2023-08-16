@@ -829,7 +829,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
           <header.column @prop="lastName">
             Last name
           </header.column>
-          <header.column @prop="points">
+          <header.column @prop="point">
             Points
           </header.column>
         </table.header>

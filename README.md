@@ -39,7 +39,7 @@ This project is licensed under the [MIT License](LICENSE.md).
 Sort is initial only. To allow changes, you have to supply an onSortChanged function and change the value passed in
 PageNumber is initial only. To allow changes, you have to supply an onPageNumberChanged function and change the value passed in 
 
-# Due to reactive natute, causes an infinite loop
+# Due to reactive nature, causes an infinite loop
 The paginationData variable passed to loadData will no longer contain TotalRows and TotalPages. 
     You should have the data to calculate these yourself
     pageNumber will not be minned if greater than number of pages
