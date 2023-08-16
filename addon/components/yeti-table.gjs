@@ -373,6 +373,7 @@ export default class YetiTable extends Component {
    * This information is used to calculate the pagination information that is yielded
    * and passed to the `@loadData` function.
    */
+  @cached
   get totalRows() {
     return this.args.totalRows;
   }
@@ -465,9 +466,7 @@ export default class YetiTable extends Component {
    *
    * @type {boolean}
    */
-  get renderTableElement() {
-    return this.args.renderTableElement ?? true;
-  }
+  renderTableElement = this.args.renderTableElement ?? true;
 
   /**
    * The `@isColumnVisible` argument can be used to initialize the column visibility in a programmatic way.
@@ -505,6 +504,7 @@ export default class YetiTable extends Component {
 
   @cached
   get normalizedTotalRows() {
+    debugger;
     if (!this.loadData) {
       // sync scenario using @data
       return this.sortedData?.length;

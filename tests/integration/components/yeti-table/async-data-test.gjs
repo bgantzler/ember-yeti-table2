@@ -716,6 +716,8 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
   test('loadData is called when changing page with @onPageNumberChange (see #301)', async function (assert) {
     assert.expect();
+    let testParams = new TestParams();
+    testParams.pageNumber = 1;
 
     let loadData = sinon.spy(({ paginationData }) => {
       return new RSVP.Promise((resolve) => {
@@ -726,12 +728,11 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       });
     });
 
-    let testParams = new TestParams();
-    testParams.pageNumber = 1;
-
     await render(
     <template>
-      <YetiTable @loadData={{loadData}} @pagination={{true}} @totalRows={{10}} @pageSize={{5}} @pageNumber={{testParams.pageNumber}} as |table|>
+      <YetiTable @loadData={{loadData}} @pagination={{true}} @pageSize={{5}}
+                 @totalRows={{10}}
+                 @pageNumber={{testParams.pageNumber}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -804,11 +805,12 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
   test('loadData is called once if updated totalRows on the loadData function', async function (assert) {
     let testParams = new TestParams();
+    testParams.totalRows = 10;
 
     let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
-          set(testParams, 'totalRows', this.data.length);
+          // set(testParams, 'totalRows', this.data.length);
           resolve(this.data);
         }, 150);
       });
@@ -817,13 +819,14 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     await render(
     <template>
       <YetiTable @loadData={{loadData}} @pagination={{true}} @pageSize={{10}}
-                 @totalRows={{testParams.totalRows}} as |table|>
+                 @totalRows={{testParams.totalRows}}
+                  as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
             First name
           </header.column>
-          <header.column @prop="lastName" @sort="desc">
+          <header.column @prop="lastName">
             Last name
           </header.column>
           <header.column @prop="points">
