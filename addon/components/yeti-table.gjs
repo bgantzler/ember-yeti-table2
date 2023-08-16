@@ -160,7 +160,7 @@ import Pagination from 'ember-yeti-table2/components/yeti-table/pagination';
 
 export default class YetiTable extends Component {
   <template>
-    {{(this.fetchData)}}
+    A{{ this.fetchData }}B
     {{#let (hash
                table=(component Table theme=this.mergedTheme)
                header=(component Header
@@ -246,36 +246,41 @@ export default class YetiTable extends Component {
 
   @action
   // poormans helper to re-run data
-  async fetchData() {
+  fetchData() {
     if (this.loadData) {
       this.runLoadData();
     } else {
-
-      if (this.data !== this.oldData) {
-        this.oldData = this.data;
-        if (this.data && this.data.then) {
-          this.isLoading = true;
-          try {
-            const result = await this.data;
-            // check if data is still the same promise
-            if (this.oldData === this.data && !this.isDestroyed) {
-              this.resolvedData = result;
-              this.isLoading = false;
-            }
-          } catch(e) {
-            if (!didCancel(e)) {
-              if (!this.isDestroyed) {
+      let _fetchData = async () => {
+        debugger;
+        if (this.data !== this.oldData) {
+          this.oldData = this.data;
+          if (this.data && this.data.then) {
+            this.isLoading = true;
+            try {
+              const result = await this.data;
+              // check if data is still the same promise
+              if (this.oldData === this.data && !this.isDestroyed) {
+                this.resolvedData = result;
                 this.isLoading = false;
               }
-              // re-throw the non-cancellation error
-              throw e;
+            } catch(e) {
+              if (!didCancel(e)) {
+                if (!this.isDestroyed) {
+                  this.isLoading = false;
+                }
+                // re-throw the non-cancellation error
+                throw e;
+              }
             }
+          } else {
+            this.resolvedData = this.data ?? [];
           }
-        } else {
-          this.resolvedData = this.data ?? [];
         }
       }
+      debugger;
+      once(_fetchData);
     }
+    return "";
   }
 
   /**
@@ -354,7 +359,7 @@ export default class YetiTable extends Component {
   @tracked
   _pageNumber = this.args.pageNumber || 1;
   get pageNumber() {
-    return this.args.onPageNumberChaged ? this.args.pageNumber : this._pageNumber;
+    return this.args.onPageNumberChanged ? this.args.pageNumber : this._pageNumber;
   }
   set pageNumber(value) {
     this._pageNumber = value;
@@ -368,14 +373,8 @@ export default class YetiTable extends Component {
    * This information is used to calculate the pagination information that is yielded
    * and passed to the `@loadData` function.
    */
-  @tracked
-  _totalRows;
-
   get totalRows() {
-    return this.args.totalRows ?? this._totalRows;
-  }
-  set totalRows(value) {
-    this._totalRows = value;
+    return this.args.totalRows;
   }
 
   /**
@@ -383,7 +382,6 @@ export default class YetiTable extends Component {
    * string and show them. Defaults to `''`.
    */
   get filter() {
-    debugger;
     return this.args.filter || '';
   }
 
@@ -512,19 +510,18 @@ export default class YetiTable extends Component {
       return this.sortedData?.length;
     } else {
       // async scenario. @loadData is present.
-      if (this.args.totalRows === undefined) {
+      if (this.totalRows === undefined) {
         // @totalRows was not passed in. Use the returned data set length.
         return this.resolvedData?.length;
       } else {
         // @totalRows was passed in.
-        return this.args.totalRows;
+        return this.totalRows;
       }
     }
   }
 
   @cached
   get normalizedRows() {
-    debugger;
     if (!this.loadData) {
       // sync scenario using @data
       return this.sortedData;
@@ -574,7 +571,6 @@ export default class YetiTable extends Component {
 
   @cached
   get pagedData() {
-    debugger;
     let pagination = this.pagination;
     let data = this.sortedData;
 
@@ -607,7 +603,6 @@ export default class YetiTable extends Component {
 
   @cached
   get filteredData() {
-    debugger;
     // only columns that have filterable = true and a prop defined will be considered
     let columns = this.columns.filter(c => c.filterable && isPresent(c.prop));
 
@@ -616,7 +611,6 @@ export default class YetiTable extends Component {
 
   @cached
   get sortedData() {
-    debugger;
     let data = this.filteredData;
     let sortableColumns = this.columns.filter(c => !isEmpty(c.sort));
     let sortings = sortableColumns.map(c => ({ prop: c.prop, direction: c.sort }));
@@ -630,7 +624,7 @@ export default class YetiTable extends Component {
     return data;
   }
 
-  async runLoadData() {
+  runLoadData() {
     debugger;
     if (isPresent(this.columns) && this.loadData && typeof this.loadData === 'function') {
         // if (typeof loadData === 'function') {
@@ -651,14 +645,9 @@ export default class YetiTable extends Component {
             }))
           };
       let loadDataFunction = async (param) => {
-        let loadData = this.loadData;
-
-          // let promise = loadData(param);
-          //
-          // if (promise && promise.then) {
             this.isLoading = true;
             try {
-              let resolvedData = await loadData(param);
+              let resolvedData = await this.loadData(param);
               if (!this.isDestroyed) {
                 this.resolvedData = resolvedData;
                 this.isLoading = false;

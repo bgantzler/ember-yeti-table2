@@ -1,6 +1,5 @@
 import {
   render,
-  rerender,
   clearRender,
   settled,
   click,
@@ -9,6 +8,7 @@ import {
 import { setupRenderingTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
+import {set} from '@ember/object';
 import { A } from '@ember/array';
 import { later } from '@ember/runloop';
 
@@ -627,13 +627,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called when changing page through @pageNumber arg', async function (assert) {
     assert.expect();
 
-    let loadData = sinon.spy(({ paginationData }) => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          let pages = [this.data, this.data2];
-          resolve(pages[paginationData.pageNumber - 1]);
-        }, 150);
-      });
+    let loadData = sinon.spy(async ({ paginationData }) => {
+      await timeout(150);
+      let pages = [this.data, this.data2];
+      return pages[paginationData.pageNumber - 1]
     });
 
     let testParams = new TestParams();
@@ -677,7 +674,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     testParams.pageNumber = 2;
 
     await settled();
-debugger;
+
     assert.dom('tbody tr').exists({ count: 5 });
     assert.dom('tbody tr:nth-child(1) td:nth-child(1)').hasText('A');
     assert.dom('tbody tr:nth-child(1) td:nth-child(2)').hasText('B');
@@ -806,20 +803,21 @@ debugger;
   });
 
   test('loadData is called once if updated totalRows on the loadData function', async function (assert) {
+    let testParams = new TestParams();
+
     let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
-          this.set('totalRows', this.data.length);
+          set(testParams, 'totalRows', this.data.length);
           resolve(this.data);
         }, 150);
       });
     });
 
-    let testParams = new TestParams();
-
     await render(
     <template>
-      <YetiTable @loadData={{loadData}} @pagination={{true}} @pageSize={{10}} @totalRows={{testParams.totalRows}} as |table|>
+      <YetiTable @loadData={{loadData}} @pagination={{true}} @pageSize={{10}}
+                 @totalRows={{testParams.totalRows}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -837,7 +835,7 @@ debugger;
 
       </YetiTable>
     </template>);
-
+debugger;
     assert.dom('tbody tr').exists({ count: 5 }, 'is not filtered');
     assert
       .dom('tbody tr:nth-child(5) td:nth-child(1)')
