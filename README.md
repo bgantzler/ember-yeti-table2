@@ -40,7 +40,7 @@ Sort is initial only. To allow changes, you have to supply an onSortChanged func
 PageNumber is initial only. To allow changes, you have to supply an onPageNumberChanged function and change the value passed in 
 
 # Due to reactive nature, causes an infinite loop
-The paginationData variable passed to loadData will no longer contain TotalRows and TotalPages. 
-    You should have the data to calculate these yourself
-    pageNumber will not be minned if greater than number of pages
-    pageEnd will not be minned if greater than totalRows
+Since assigning the same value to a property 
+causes a tracked change, changing totalRows to the same
+value in the outside world causes in infinit loop.
+The outside needs to check and guard against it. 

@@ -33,9 +33,7 @@ import {cell} from 'ember-resources';
  **/
 
 export const arg = function(options = {}) {
-    debugger;
     return (...args) => {
-        debugger;
         const [target, key, descriptor] = args;
         // Error on `@arg()`
         if (DEBUG && target === undefined) throwTrackedWithEmptyArgumentsError();

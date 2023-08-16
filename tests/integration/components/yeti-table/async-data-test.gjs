@@ -803,14 +803,15 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     );
   });
 
-  test('loadData is called once if updated totalRows on the loadData function', async function (assert) {
+  test('loadData is called twice if updated totalRows on the loadData function', async function (assert) {
     let testParams = new TestParams();
-    testParams.totalRows = 10;
 
     let loadData = sinon.spy(() => {
       return new RSVP.Promise((resolve) => {
         later(() => {
-          // set(testParams, 'totalRows', this.data.length);
+          if (testParams.totalRows !== this.data.length) {
+            testParams.totalRows = this.data.length
+          }
           resolve(this.data);
         }, 150);
       });
@@ -826,10 +827,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
           <header.column @prop="firstName">
             First name
           </header.column>
-          <header.column @prop="lastName">
+          <header.column @prop="lastName" @sort="desc">
             Last name
           </header.column>
-          <header.column @prop="point">
+          <header.column @prop="points">
             Points
           </header.column>
         </table.header>
@@ -852,7 +853,8 @@ debugger;
 
     await clearRender();
 
-    assert.ok(loadData.calledOnce, 'loadData was called once');
+    // setting totalRows causes the load data to be called again
+    assert.ok(loadData.calledTwice, 'loadData was called once');
   });
 
   test('loadData is called once if we change @filter from undefined to ""', async function (assert) {
