@@ -128,12 +128,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     </template>
     );
 
-    testParams.dataPromise = new RSVP.Promise(
-      (resolve) => {
-        later(() => {
-          resolve(this.data);
-        }, 150);
-      });
+    testParams.dataPromise = async function() {
+      await timeout(150);
+       return this.data;
+      };
 
     assert.dom('tbody tr').doesNotExist();
 
@@ -171,13 +169,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       </YetiTable>
     </template>);
 
-    testParams.dataPromise = new RSVP.Promise(
-      (resolve) => {
-        later(() => {
-          resolve(this.data);
-        }, 150);
-      }
-    );
+    testParams.dataPromise = async function() {
+      await timeout(150);
+      return this.data;
+    };
 
     await waitFor('.loading-message');
 
@@ -213,23 +208,17 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       </YetiTable>
     </template>);
 
-    testParams.dataPromise = new RSVP.Promise(
-      (resolve) => {
-        later(() => {
-          resolve(this.data);
-        }, 150);
-      }
-    );
+    testParams.dataPromise = async function() {
+      await timeout(150);
+      return this.data;
+    };
 
     assert.dom('tbody tr').doesNotExist();
 
-    testParams.dataPromise = new RSVP.Promise(
-      (resolve) => {
-        later(() => {
-          resolve(this.data2);
-        }, 10);
-      }
-    );
+    testParams.dataPromise = async function() {
+      await timeout(150);
+      return this.data2;
+    };
 
     await settled();
 
@@ -240,12 +229,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   });
 
   test('yielded isLoading boolean is true while loadData promise is not resolved', async function (assert) {
-    let loadData = sinon.spy(() => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          resolve(this.data);
-        }, 150);
-      });
+    let loadData = sinon.spy(async () => {
+      await timeout(150);
+      return this.data;
     });
 
     render(
@@ -283,12 +269,9 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   });
 
   test('loadData is called with correct parameters', async function (assert) {
-    let loadData = sinon.spy(() => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          resolve(this.data);
-        }, 150);
-      });
+    let loadData = sinon.spy(async () => {
+      await timeout(150);
+      return this.data;
     });
 
     await render(
@@ -410,20 +393,16 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
 
     let testParams = new TestParams();
 
-    let loadData = sinon.spy(({ sortData }) => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          let data = this.data;
+    let loadData = sinon.spy(async ({ sortData }) => {
+      await timeout(150);
+      let data = this.data;
 
-          if (sortData.length > 0) {
-            data = mergeSort(data, (itemA, itemB) => {
-              return sortMultiple(itemA, itemB, sortData, compareValues);
-            });
-          }
-
-          resolve(data);
-        }, 150);
-      });
+      if (sortData.length > 0) {
+        data = mergeSort(data, (itemA, itemB) => {
+          return sortMultiple(itemA, itemB, sortData, compareValues);
+        });
+      }
+      return data;
     });
 
     await render(
@@ -477,20 +456,16 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called when clicking a sortable header', async function (assert) {
     assert.expect();
 
-    let loadData = sinon.spy(({ sortData }) => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          let data = this.data;
+    let loadData = sinon.spy(async ({ sortData }) => {
+      await timeout(150);
+      let data = this.data;
 
-          if (sortData.length > 0) {
-            data = mergeSort(data, (itemA, itemB) => {
-              return sortMultiple(itemA, itemB, sortData, compareValues);
-            });
-          }
-
-          resolve(data);
-        }, 150);
-      });
+      if (sortData.length > 0) {
+        data = mergeSort(data, (itemA, itemB) => {
+          return sortMultiple(itemA, itemB, sortData, compareValues);
+        });
+      }
+      return data;
     });
 
     await render(
@@ -542,13 +517,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called when changing page', async function (assert) {
     assert.expect();
 
-    let loadData = sinon.spy(({ paginationData }) => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          let pages = [this.data, this.data2];
-          resolve(pages[paginationData.pageNumber - 1]);
-        }, 150);
-      });
+    let loadData = sinon.spy(async ({ paginationData }) => {
+      await timeout(150);
+      let pages = [this.data, this.data2];
+      return pages[paginationData.pageNumber - 1];
     });
 
     await render(
@@ -719,13 +691,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     let testParams = new TestParams();
     testParams.pageNumber = 1;
 
-    let loadData = sinon.spy(({ paginationData }) => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          let pages = [this.data, this.data2];
-          resolve(pages[paginationData.pageNumber - 1]);
-        }, 150);
-      });
+    let loadData = sinon.spy(async ({ paginationData }) => {
+      await timeout(150);
+      let pages = [this.data, this.data2];
+      return pages[paginationData.pageNumber - 1];
     });
 
     await render(
@@ -806,15 +775,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   test('loadData is called once if updated totalRows on the loadData function', async function (assert) {
     let testParams = new TestParams();
 
-    let loadData = sinon.spy(() => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          // if (testParams.totalRows !== this.data.length) {
-            testParams.totalRows = this.data.length
-          // }
-          resolve(this.data);
-        }, 150);
-      });
+    let loadData = sinon.spy(async () => {
+      await timeout(150);
+        testParams.totalRows = this.data.length
+        return this.data;
     });
 
     await render(
@@ -857,12 +821,9 @@ debugger;
   });
 
   test('loadData is called once if we change @filter from undefined to ""', async function (assert) {
-    let loadData = sinon.spy(() => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          resolve(this.data);
-        }, 150);
-      });
+    let loadData = sinon.spy(async () => {
+      timeout(150);
+      return this.data;
     });
 
     let testParams = new TestParams();
@@ -967,12 +928,9 @@ debugger;
   });
 
   test('reloadData from @registerApi reruns the @loadData function', async function (assert) {
-    let loadData = sinon.spy(() => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          resolve(this.data);
-        }, 150);
-      });
+    let loadData = sinon.spy(async () => {
+      await timeout(150);
+      return this.data;
     });
 
     await render(
@@ -1019,12 +977,9 @@ debugger;
   });
 
   test('reloadData from yielded action reruns the @loadData function', async function (assert) {
-    let loadData = sinon.spy(() => {
-      return new RSVP.Promise((resolve) => {
-        later(() => {
-          resolve(this.data);
-        }, 150);
-      });
+    let loadData = sinon.spy(async () => {
+      await timeout(150);
+      return this.data;
     });
 
     await render(
