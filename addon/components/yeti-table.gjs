@@ -82,7 +82,6 @@ class PaginationData {
   totalPage;
 
   constructor(args) {
-    console.log(this);
     Object.assign(this, args);
   }
 }
@@ -634,7 +633,15 @@ export default class YetiTable extends Component {
           let param = {};
 
           if (this.pagination) {
-            param.paginationData = this.paginationData;
+            // cant use this.paginationData, if uses totalRows which could be changed as a result of this call
+            let pageStart = (this.pageNumber - 1) * this.pageSize;
+            param.paginationData = {
+              pageSize: this.pageSize,
+              pageNumber: this.pageNumber,
+              pageStart: pageStart + 1, // make 1 indexed
+              pageEnd: (pageStart + this.pageSize - 1) + 1, // make 1 indexed
+              isFirstPage: this.pageNumber === 1,
+            };
           }
 
           param.sortData = this.columns.filter(c => !isEmpty(c.sort)).map(c => ({ prop: c.prop, direction: c.sort }));
