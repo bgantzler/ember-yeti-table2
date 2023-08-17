@@ -68,12 +68,12 @@ function descriptorForField(
         configurable: true,
 
         get() {
-            // return this.args[onChangedProperty] ? this.args[key] : options.updatable ? savedValue.current : this.args[key];
-            let onChanged = this.args[onChangedProperty];
-            let value = this.args[key];
-            let updatable = options.updatable;
-            let savedValue1 = savedValue.current;
-            return onChanged ? value : updatable ? savedValue1 : value;
+            return this.args[onChangedProperty] ? this.args[key] : options.updatable ? savedValue.current : this.args[key];
+            // let onChanged = this.args[onChangedProperty];
+            // let value = this.args[key];
+            // let updatable = options.updatable;
+            // let savedValue1 = savedValue.current;
+            // return onChanged ? value : updatable ? savedValue1 : value;
         },
     };
 
