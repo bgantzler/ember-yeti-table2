@@ -2,15 +2,17 @@ import { render } from '@ember/test-helpers';
 import { setupRenderingTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import { A } from '@ember/array';
 
-import { hbs } from 'ember-cli-htmlbars';
+import YetiTable from 'ember-yeti-table2/components/yeti-table';
+import { fn } from '@ember/helper';
 
 module('Integration | Component | yeti-table (a11y)', function (hooks) {
   setupRenderingTest(hooks);
 
+  let data;
+
   hooks.beforeEach(function () {
-    this.data = A([
+    data = [
       {
         firstName: 'Miguel',
         lastName: 'Andrade',
@@ -36,12 +38,13 @@ module('Integration | Component | yeti-table (a11y)', function (hooks) {
         lastName: 'Katz',
         points: 5,
       },
-    ]);
+    ];
   });
 
   test('only sortable columns have role="button"', async function (assert) {
-    await render(hbs`
-      <YetiTable @data={{this.data}} as |table|>
+    await render(
+        <template>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName" @sortable={{false}}>
@@ -58,7 +61,7 @@ module('Integration | Component | yeti-table (a11y)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('thead tr th:nth-child(1)').hasNoAttribute('role');
     assert.dom('thead tr th:nth-child(2)').hasAttribute('role', 'button');
@@ -66,8 +69,9 @@ module('Integration | Component | yeti-table (a11y)', function (hooks) {
   });
 
   test('not clickable rows do not have role="button"', async function (assert) {
-    await render(hbs`
-      <YetiTable @data={{this.data}} as |table|>
+    await render(
+        <template>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -84,14 +88,17 @@ module('Integration | Component | yeti-table (a11y)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
     assert.dom('tbody tr').hasNoAttribute('role');
   });
 
   test('clickable rows have role="button"', async function (assert) {
-    await render(hbs`
-      <YetiTable @data={{this.data}} as |table|>
+    let noop = () => {};
+
+    await render(
+        <template>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -105,10 +112,10 @@ module('Integration | Component | yeti-table (a11y)', function (hooks) {
           </header.column>
         </table.header>
 
-        <table.body @onRowClick={{fn (mut this.noop) true}}/>
+        <table.body @onRowClick={{noop}}/>
 
       </YetiTable>
-    `);
+          </template>);
 
     assert.dom('tbody tr').hasAttribute('role');
   });

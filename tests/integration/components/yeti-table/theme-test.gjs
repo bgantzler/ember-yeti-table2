@@ -2,17 +2,18 @@ import { render } from '@ember/test-helpers';
 import { setupRenderingTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import { A } from '@ember/array';
-
-import { hbs } from 'ember-cli-htmlbars';
-
 import DEFAULT_THEME from 'ember-yeti-table2/themes/default-theme';
+
+import YetiTable from 'ember-yeti-table2/components/yeti-table';
 
 module('Integration | Component | yeti-table (theme)', function (hooks) {
   setupRenderingTest(hooks);
 
+  let theme;
+  let data;
+
   hooks.beforeEach(function () {
-    this.theme = {
+    theme = {
       table: 'table-1',
       thead: 'head-1',
       theadRow: 'head-row-1',
@@ -24,7 +25,7 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
       tfootCell: 'foot-cell-1',
     };
 
-    this.data = A([
+    data = [
       {
         firstName: 'Miguel',
         lastName: 'Andrade',
@@ -50,12 +51,13 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
         lastName: 'Katz',
         points: 5,
       },
-    ]);
+    ];
   });
 
   test('renders table with correct theme (header)', async function (assert) {
-    await render(hbs`
-      <YetiTable @data={{this.data}} @theme={{theme}} as |table|>
+    await render(
+        <template>
+      <YetiTable @data={{data}} @theme={{theme}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
@@ -72,19 +74,20 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
         <table.body/>
 
       </YetiTable>
-    `);
+    </template>);
 
-    assert.dom('table').hasClass(this.theme.table);
-    assert.dom('thead').hasClass(this.theme.thead);
-    assert.dom('thead tr').hasClass(this.theme.theadRow);
-    assert.dom('thead tr th').hasClass(this.theme.theadCell);
-    assert.dom('tbody tr').hasClass(this.theme.tbodyRow);
-    assert.dom('tbody tr td').hasClass(this.theme.tbodyCell);
+    assert.dom('table').hasClass(theme.table);
+    assert.dom('thead').hasClass(theme.thead);
+    assert.dom('thead tr').hasClass(theme.theadRow);
+    assert.dom('thead tr th').hasClass(theme.theadCell);
+    assert.dom('tbody tr').hasClass(theme.tbodyRow);
+    assert.dom('tbody tr td').hasClass(theme.tbodyCell);
   });
 
   test('renders table with correct theme (head)', async function (assert) {
-    await render(hbs`
-      <YetiTable @data={{this.data}} @theme={{theme}} as |table|>
+    await render(
+        <template>
+      <YetiTable @data={{data}} @theme={{theme}} as |table|>
 
         <table.thead as |head|>
           <head.row as |row|>
@@ -111,20 +114,20 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
         </table.tfoot>
 
       </YetiTable>
-    `);
+    </template>);
 
-    assert.dom('table').hasClass(this.theme.table);
+    assert.dom('table').hasClass(theme.table);
 
-    assert.dom('thead').hasClass(this.theme.thead);
-    assert.dom('thead tr').hasClass(this.theme.theadRow);
-    assert.dom('thead tr th').hasClass(this.theme.theadCell);
+    assert.dom('thead').hasClass(theme.thead);
+    assert.dom('thead tr').hasClass(theme.theadRow);
+    assert.dom('thead tr th').hasClass(theme.theadCell);
 
-    assert.dom('tbody tr').hasClass(this.theme.tbodyRow);
-    assert.dom('tbody tr td').hasClass(this.theme.tbodyCell);
+    assert.dom('tbody tr').hasClass(theme.tbodyRow);
+    assert.dom('tbody tr td').hasClass(theme.tbodyCell);
 
-    assert.dom('tfoot').hasClass(this.theme.tfoot);
-    assert.dom('tfoot tr').hasClass(this.theme.tfootRow);
-    assert.dom('tfoot tr td').hasClass(this.theme.tfootCell);
+    assert.dom('tfoot').hasClass(theme.tfoot);
+    assert.dom('tfoot tr').hasClass(theme.tfootRow);
+    assert.dom('tfoot tr td').hasClass(theme.tfootCell);
 
     assert
       .dom('tfoot > tr > td > div')
@@ -144,7 +147,7 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
   });
 
   test('deep merge of themes works', async function (assert) {
-    this.theme = {
+    theme = {
       sorting: {
         columnSortable: 'custom-sortable',
       },
@@ -153,8 +156,9 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
       },
     };
 
-    await render(hbs`
-      <YetiTable @data={{this.data}} @theme={{theme}} as |table|>
+    await render(
+        <template>
+      <YetiTable @data={{data}} @theme={{theme}} as |table|>
 
         <table.thead as |head|>
           <head.row as |row|>
@@ -181,7 +185,7 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
         </table.tfoot>
 
       </YetiTable>
-    `);
+          </template>);
 
     // we overwrote sorting.columnSortable but not sorting.columnSorted
     assert
@@ -189,7 +193,7 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
       .hasClass(DEFAULT_THEME.sorting.columnSorted);
     assert
       .dom('thead tr:nth-child(1) th:nth-child(1)')
-      .hasClass(this.theme.sorting.columnSortable);
+      .hasClass(theme.sorting.columnSortable);
     assert
       .dom('thead tr:nth-child(1) th:nth-child(1)')
       .doesNotHaveClass(DEFAULT_THEME.sorting.columnSortable);
@@ -200,7 +204,7 @@ module('Integration | Component | yeti-table (theme)', function (hooks) {
       .hasClass(DEFAULT_THEME.pagination.previous);
     assert
       .dom('tfoot > tr > td > div > button:last-child')
-      .hasClass(this.theme.pagination.next);
+      .hasClass(theme.pagination.next);
     assert
       .dom('tfoot > tr > td > div > button:last-child')
       .doesNotHaveClass(DEFAULT_THEME.pagination.next);

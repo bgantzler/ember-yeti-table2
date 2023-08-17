@@ -23,45 +23,45 @@ const didCancel = function (e) {
   return e && e.name === TASK_CANCELATION_NAME;
 };
 
-import { resourceFactory, use } from 'ember-resources';
-import { trackedFunction }  from 'ember-resources/util/function';
-const DataResource = resourceFactory((argsFunc) => {
-  return trackedFunction(this, async() => {
-    const argsHash = argsFunc();
-    if (this.loadData) {
-      this.runLoadData();
-    } else {
-
-      let data = argsHash.data;
-      if (data !== this.oldData) {
-        this.oldData = data;
-        // if (data && data.then) {
-          this.isLoading = true;
-          try {
-            const result = await data;
-            // check if data is still the same promise
-            if (data === this.data && !this.isDestroyed) {
-              this.resolvedData = result ?? [];
-              this.isLoading = false;
-            }
-          } catch(e) {
-            if (!didCancel(e)) {
-              if (!this.isDestroyed) {
-                this.isLoading = false;
-              }
-              // re-throw the non-cancellation error
-              throw e;
-            }
-          }
-        // } else {
-        //   this.resolvedData = data ?? [];
-        // }
-      }
-    }
-
-    return this.processedData;
-  })
-});
+// import { resourceFactory, use } from 'ember-resources';
+// import { trackedFunction }  from 'ember-resources/util/function';
+// const DataResource = resourceFactory((argsFunc) => {
+//   return trackedFunction(this, async() => {
+//     const argsHash = argsFunc();
+//     if (this.loadData) {
+//       this.runLoadData();
+//     } else {
+//
+//       let data = argsHash.data;
+//       if (data !== this.oldData) {
+//         this.oldData = data;
+//         // if (data && data.then) {
+//           this.isLoading = true;
+//           try {
+//             const result = await data;
+//             // check if data is still the same promise
+//             if (data === this.data && !this.isDestroyed) {
+//               this.resolvedData = result ?? [];
+//               this.isLoading = false;
+//             }
+//           } catch(e) {
+//             if (!didCancel(e)) {
+//               if (!this.isDestroyed) {
+//                 this.isLoading = false;
+//               }
+//               // re-throw the non-cancellation error
+//               throw e;
+//             }
+//           }
+//         // } else {
+//         //   this.resolvedData = data ?? [];
+//         // }
+//       }
+//     }
+//
+//     return this.processedData;
+//   })
+// });
 
 class PaginationData {
   @tracked
@@ -239,7 +239,6 @@ export default class YetiTable extends Component {
    * html elements. The theme object your pass in will be deeply merged with yeti-table's default theme
    * and with a theme defined in your environment.js at `ENV['ember-yeti-table'].theme`.
    */
-  @cached
   get theme() {
     return this.args.theme ?? {};
   };
@@ -257,6 +256,7 @@ export default class YetiTable extends Component {
         if (data !== this.oldData) {
           this.oldData = data;
           // if (data && data.then) {
+          debugger;
             this.isLoading = true;
             try {
               let promise = (typeof data === 'function') ? data() : data;
