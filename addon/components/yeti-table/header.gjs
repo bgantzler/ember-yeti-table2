@@ -31,7 +31,7 @@ class Header extends Component {
                             column=(component THead
                                 sortable=@sortable
                                 sortSequence=@sortSequence
-                                onClick=(fn this.onColumnClickHeader)
+                                onClick=this.onColumnClickHeader
                                 parent=@parent theme=@theme
                             )
                         )}}

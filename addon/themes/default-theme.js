@@ -34,7 +34,7 @@ export default {
     // applied to <th> header cells when column is currently sorted ascending
     columnSortedAsc: 'yeti-table-sorted-asc',
     // applied to <th> header cells when column is currently sorted descending
-    columnSortedDesc: 'yeti-table-sorted-desc'
+    columnSortedDesc: 'yeti-table-sorted-desc',
   },
 
   pagination: {
@@ -47,7 +47,7 @@ export default {
     // applied to the next button
     next: 'yeti-table-pagination-controls-next',
     // applied to the previous button
-    previous: 'yeti-table-pagination-controls-previous'
-  }
+    previous: 'yeti-table-pagination-controls-previous',
+  },
 };
 // END-SNIPPET

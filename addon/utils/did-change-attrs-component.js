@@ -15,7 +15,8 @@ export default class DidChangeAttrsComponent extends Component {
     super.init(...arguments);
 
     this._didChangeAttrsBuffer = null; // this tracks previous state of any `trackAttrChanges`
-    this.didChangeAttrsConfig = this.didChangeAttrsConfig === undefined ? [] : this.didChangeAttrsConfig; // attributes to track
+    this.didChangeAttrsConfig =
+      this.didChangeAttrsConfig === undefined ? [] : this.didChangeAttrsConfig; // attributes to track
   }
 
   didReceiveAttrs() {

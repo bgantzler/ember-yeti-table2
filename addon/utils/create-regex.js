@@ -1,15 +1,39 @@
 import { isBlank } from '@ember/utils';
 
 const ESCAPE_REGEX = new RegExp(
-  '(\\' + ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\', '$', '^', '-'].join('|\\') + ')',
-  'g'
+  '(\\' +
+    [
+      '/',
+      '.',
+      '*',
+      '+',
+      '?',
+      '|',
+      '(',
+      ')',
+      '[',
+      ']',
+      '{',
+      '}',
+      '\\',
+      '$',
+      '^',
+      '-',
+    ].join('|\\') +
+    ')',
+  'g',
 );
 
 function escapeRegex(val) {
   return val.replace(ESCAPE_REGEX, '\\$1');
 }
 
-export default function createRegex(search, regex = false, smart = true, caseInsensitive = true) {
+export default function createRegex(
+  search,
+  regex = false,
+  smart = true,
+  caseInsensitive = true,
+) {
   if (isBlank(search)) {
     return;
   }
@@ -25,7 +49,7 @@ export default function createRegex(search, regex = false, smart = true, caseIns
      * ^(?=.*?\bone\b)(?=.*?\btwo three\b)(?=.*?\bfour\b).*$
      */
     let words = search.match(/"[^"]+"|[^ ]+/g) || [''];
-    let a = words.map(word => {
+    let a = words.map((word) => {
       if (word.charAt(0) === '"') {
         let m = word.match(/^"(.*)"$/);
         word = m ? m[1] : word;

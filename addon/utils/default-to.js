@@ -16,7 +16,8 @@ export default function defaultTo(defaultValue) {
       let values = valuesFor(this);
 
       if (!(key in values)) {
-        values[key] = typeof defaultValue === 'function' ? defaultValue() : defaultValue;
+        values[key] =
+          typeof defaultValue === 'function' ? defaultValue() : defaultValue;
       }
 
       return values[key];
@@ -26,12 +27,13 @@ export default function defaultTo(defaultValue) {
       let values = valuesFor(this);
 
       if (value === undefined) {
-        values[key] = typeof defaultValue === 'function' ? defaultValue() : defaultValue;
+        values[key] =
+          typeof defaultValue === 'function' ? defaultValue() : defaultValue;
       } else {
         values[key] = value;
       }
 
       return values[key];
-    }
+    },
   });
 }
