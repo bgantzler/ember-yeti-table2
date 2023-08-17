@@ -35,13 +35,13 @@ const DataResource = resourceFactory((argsFunc) => {
       let data = argsHash.data;
       if (data !== this.oldData) {
         this.oldData = data;
-        if (data && data.then) {
+        // if (data && data.then) {
           this.isLoading = true;
           try {
             const result = await data;
             // check if data is still the same promise
             if (data === this.data && !this.isDestroyed) {
-              this.resolvedData = result;
+              this.resolvedData = result ?? [];
               this.isLoading = false;
             }
           } catch(e) {
@@ -53,9 +53,9 @@ const DataResource = resourceFactory((argsFunc) => {
               throw e;
             }
           }
-        } else {
-          this.resolvedData = data ?? [];
-        }
+        // } else {
+        //   this.resolvedData = data ?? [];
+        // }
       }
     }
 
@@ -246,23 +246,26 @@ export default class YetiTable extends Component {
 
   @action
   // poormans helper to re-run data
-  fetchData() {
+  async fetchData() {
     debugger;
     if (this.loadData) {
       this.runLoadData();
     } else {
-      let _fetchData = async () => {
+      // let _fetchData = async (data) => {
+      let data = this.data;
         debugger;
-        if (this.data !== this.oldData) {
-          this.oldData = this.data;
-          if (this.data && this.data.then) {
+        if (data !== this.oldData) {
+          this.oldData = data;
+          // if (data && data.then) {
             this.isLoading = true;
             try {
-              const result = await this.data;
+              let promise = (typeof data === 'function') ? data() : data;
+              const result = await promise;
               // check if data is still the same promise
-              if (this.oldData === this.data && !this.isDestroyed) {
+              if (this.oldData === data) {//  && !this.isDestroyed) {
                 this.resolvedData = result;
                 this.isLoading = false;
+                notifyPropertyChange(this, 'filteredData');
               }
             } catch(e) {
               if (!didCancel(e)) {
@@ -273,13 +276,13 @@ export default class YetiTable extends Component {
                 throw e;
               }
             }
-          } else {
-            this.resolvedData = this.data ?? [];
-          }
+          // } else {
+          //   this.resolvedData = data ?? [];
+          // }
         }
-      }
-      debugger;
-      once(_fetchData);
+      // }
+      // debugger;
+      // once(this, _fetchData, this.data);
     }
     return "";
   }
@@ -289,9 +292,11 @@ export default class YetiTable extends Component {
    * The only case when `@data` is optional is if a `@loadData` was passed in.
    */
   oldData;
-  get data() {
-    return this.args.data;
-  }
+  @arg()
+  data;
+  // get data() {
+  //   return this.args.data;
+  // }
 
   // dataResource = use(this, DataResource(() => {
   //   return {
@@ -677,7 +682,7 @@ export default class YetiTable extends Component {
         // }
       };
 
-      once(loadDataFunction, param);
+      once(this, loadDataFunction, param);
     }
   }
 

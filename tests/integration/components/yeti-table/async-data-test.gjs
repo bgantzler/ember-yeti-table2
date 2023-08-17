@@ -1,5 +1,6 @@
 import {
   render,
+  rerender,
   clearRender,
   settled,
   click,
@@ -8,12 +9,9 @@ import {
 import { setupRenderingTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import {set} from '@ember/object';
 import { A } from '@ember/array';
-import { later } from '@ember/runloop';
 
 import { restartableTask, timeout } from 'ember-concurrency';
-import RSVP from 'rsvp';
 import sinon from 'sinon';
 import {tracked} from '@glimmer/tracking';
 
@@ -128,14 +126,14 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     </template>
     );
 
-    testParams.dataPromise = async function() {
-      await timeout(150);
-       return this.data;
-      };
-
     assert.dom('tbody tr').doesNotExist();
 
-    await settled();
+    debugger;
+    testParams.dataPromise = async () => {
+      await timeout(150);
+      return this.data;
+    };
+    await rerender();
 
     assert.dom('tbody tr').exists({ count: 5 });
   });
@@ -169,7 +167,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       </YetiTable>
     </template>);
 
-    testParams.dataPromise = async function() {
+    testParams.dataPromise = async () => {
       await timeout(150);
       return this.data;
     };
@@ -208,14 +206,14 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       </YetiTable>
     </template>);
 
-    testParams.dataPromise = async function() {
+    testParams.dataPromise = async () => {
       await timeout(150);
       return this.data;
     };
 
     assert.dom('tbody tr').doesNotExist();
 
-    testParams.dataPromise = async function() {
+    testParams.dataPromise = async () => {
       await timeout(150);
       return this.data2;
     };
