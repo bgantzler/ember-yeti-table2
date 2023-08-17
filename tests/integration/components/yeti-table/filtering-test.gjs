@@ -2,8 +2,7 @@ import { render, settled } from '@ember/test-helpers';
 import { setupRenderingTest } from 'ember-qunit';
 import { module, test, skip } from 'qunit';
 
-import { set, get, notifyPropertyChange } from '@ember/object';
-import { run } from '@ember/runloop';
+import { get, notifyPropertyChange } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 
 // template imports

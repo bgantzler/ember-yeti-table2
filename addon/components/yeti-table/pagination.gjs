@@ -1,6 +1,5 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
-import { tracked } from '@glimmer/tracking';
 
 /**
  Simple pagination controls component that is included to help you get started quickly.
