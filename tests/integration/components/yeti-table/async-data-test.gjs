@@ -43,7 +43,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function () {
-    this.data = A([
+    this.data = [
       {
         firstName: 'Miguel',
         lastName: 'Andrade',
@@ -69,10 +69,10 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
         lastName: 'Dale',
         points: 5,
       },
-    ]);
+    ];
   });
 
-  this.data2 = A([
+  this.data2 = [
     {
       firstName: 'A',
       lastName: 'B',
@@ -98,7 +98,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       lastName: 'J',
       points: 654,
     },
-  ]);
+  ];
 
   test('passing a promise as `data` works after resolving promise', async function (assert) {
     let testParams = new TestParams();

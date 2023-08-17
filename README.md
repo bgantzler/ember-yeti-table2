@@ -45,3 +45,10 @@ The paginationData variable passed to loadData will no longer contain TotalRows 
     You should have the data to calculate these yourself
     pageNumber will not be minned if greater than number of pages
     pageEnd will not be minned if greater than totalRows
+
+# Data must be tracked
+before the computed was built dynamically to look at data and its properties. With glimmer,
+the data must be marked accordingly with tracked or a notifyPropertyChange is issued
+
+# ignoreDataChanges
+How to implement?

@@ -3,8 +3,6 @@ import { click } from '@ember/test-helpers';
 import { setupRenderingTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import { A } from '@ember/array';
-
 import sinon from 'sinon';
 import { tracked } from '@glimmer/tracking';
 
@@ -26,7 +24,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   let data;
 
   hooks.beforeEach(function () {
-    data = A([
+    data = [
       {
         firstName: 'Miguel',
         lastName: 'Andrade',
@@ -67,7 +65,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
           city: 'Portland',
         },
       },
-    ]);
+    ];
   });
 
   test('body blockless form renders table', async function (assert) {
