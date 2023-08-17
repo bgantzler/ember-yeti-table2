@@ -9,8 +9,6 @@ import {
 import { setupRenderingTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 
-import { A } from '@ember/array';
-
 import { restartableTask, timeout } from 'ember-concurrency';
 import sinon from 'sinon';
 import {tracked} from '@glimmer/tracking';

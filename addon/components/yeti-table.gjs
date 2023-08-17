@@ -160,7 +160,6 @@ import Pagination from 'ember-yeti-table2/components/yeti-table/pagination';
 
 export default class YetiTable extends Component {
   <template>
-    A{{ this.fetchData }}B
     {{#let (hash
                table=(component Table theme=this.mergedTheme)
                header=(component Header
@@ -226,6 +225,7 @@ export default class YetiTable extends Component {
       {{/if}}
 
     {{/let}}
+    A{{ this.fetchData }}B
   </template>
 
   @tracked
@@ -292,11 +292,9 @@ export default class YetiTable extends Component {
    * The only case when `@data` is optional is if a `@loadData` was passed in.
    */
   oldData;
-  @arg()
-  data;
-  // get data() {
-  //   return this.args.data;
-  // }
+  get data() {
+    return this.args.data;
+  }
 
   // dataResource = use(this, DataResource(() => {
   //   return {
@@ -362,18 +360,17 @@ export default class YetiTable extends Component {
   /**
    * Controls the current page to show. Default is `1`.
    */
-  // @tracked
-  // _pageNumber = this.args.pageNumber || 1;
-  // get pageNumber() {
-  //   return this.args.onPageNumberChanged ? this.args.pageNumber : this._pageNumber;
-  // }
-  // set pageNumber(value) {
-  //   this._pageNumber = value;
-  //   this.args.onPageNumberChanged?.(value);
-  // }
+  @tracked
+  _pageNumber = this.args.pageNumber ?? 1;
+  get pageNumber() {
+    return this.args.onPageNumberChanged ? this.args.pageNumber : this._pageNumber;
+  }
+  set pageNumber(value) {
+    this._pageNumber = value;
+    this.args.onPageNumberChanged?.(value);
+  }
 
-  @arg({default: 1, updatable: true})
-  pageNumber;
+
   /**
    * Optional argument that informs yeti table of how many rows your data has.
    * Only needed when using a `@loadData` function and `@pagination={{true}}`.
@@ -619,6 +616,7 @@ export default class YetiTable extends Component {
   @cached
   get sortedData() {
     let data = this.filteredData;
+    debugger;
     let sortableColumns = this.columns.filter(c => !isEmpty(c.sort));
     let sortings = sortableColumns.map(c => ({ prop: c.prop, direction: c.sort }));
 

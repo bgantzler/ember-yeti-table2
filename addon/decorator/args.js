@@ -59,6 +59,7 @@ function descriptorForField(
     desc,
     options
 ) {
+    //TODO Doesnt work, need a way to keep a value for each instance use
     let savedValue = new cell(options.default);
     let capProperty = key.charAt(0).toUpperCase() + key.slice(1)
     let onChangedProperty = `on${capProperty}Changed`;
@@ -68,12 +69,13 @@ function descriptorForField(
         configurable: true,
 
         get() {
-            return this.args[onChangedProperty] ? this.args[key] : options.updatable ? savedValue.current : this.args[key];
+            return this.args[onChangedProperty] ? this.args[key]
+                : options.updatable ? savedValue.current ?? this.args[key] : this.args[key];
             // let onChanged = this.args[onChangedProperty];
             // let value = this.args[key];
             // let updatable = options.updatable;
             // let savedValue1 = savedValue.current;
-            // return onChanged ? value : updatable ? savedValue1 : value;
+            // return onChanged ? value : updatable ? savedValue1 ?? value : value;
         },
     };
 

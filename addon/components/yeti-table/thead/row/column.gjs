@@ -5,6 +5,7 @@ import { assert } from '@ember/debug';
 import { action } from '@ember/object';
 import { registerDestructor } from '@ember/destroyable';
 import { tracked } from '@glimmer/tracking';
+import {arg} from 'ember-yeti-table2/decorator/args';
 
 /**
  An important component yielded from the header or head.row component that is used to define
