@@ -33,8 +33,12 @@ This project is licensed under the [MIT License](LICENSE.md).
 
 
 
+
 ## Breaking change.
 All components are now glimmer. Any dependancy on two-way bound arguments are no longer valid.
+Component is not exported, it will be avail as an import only for templates. However, if you want
+    to use it in an hbs, you will need to create the app/component file yourself.  If migrating and
+wanting to use both, definitely should create the file for the old one. 
 
 # Due to glimmer not being two-way bound and need for DDAU
 Sort is initial only. To allow changes, you have to supply an onSortChanged function and change the value passed in

@@ -363,7 +363,7 @@ export default class YetiTable extends Component {
   @tracked
   _pageNumber = this.args.pageNumber ?? 1;
   get pageNumber() {
-    return this.args.onPageNumberChanged ? this.args.pageNumber : this._pageNumber;
+    return this.args.onPageNumberChanged ? this.args.pageNumber ?? 1 : this._pageNumber;
   }
   set pageNumber(value) {
     this._pageNumber = value;
