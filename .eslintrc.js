@@ -22,7 +22,9 @@ module.exports = {
   env: {
     browser: true,
   },
-  rules: {},
+  rules: {
+    'prettier/prettier': 0, // disable prettier while linting, using lint-staged
+  },
   overrides: [
     // node files
     {

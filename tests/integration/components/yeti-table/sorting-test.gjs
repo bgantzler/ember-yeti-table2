@@ -6,9 +6,6 @@ import { get, notifyPropertyChange } from '@ember/object';
 import { compare } from '@ember/utils';
 import {tracked} from '@glimmer/tracking';
 
-
-import { hbs } from 'ember-cli-htmlbars';
-
 import DEFAULT_THEME from 'ember-yeti-table2/themes/default-theme';
 
 class TestParams {

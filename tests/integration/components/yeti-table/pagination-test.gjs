@@ -185,7 +185,7 @@ module('Integration | Component | yeti-table (pagination)', function (hooks) {
 
       </YetiTable>
     </template>);
-debugger;
+
     assert.dom('tbody tr').exists({ count: 10 });
     assert.dom('tbody tr:nth-child(1) td:nth-child(3)').hasText('30');
 

@@ -377,7 +377,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
 
     let testParams = new TestParams();
     testParams.rowClicked = (p) => {
-      assert.equal(p.firstName, 'Miguel');
+      assert.strictEqual(p.firstName, 'Miguel');
     };
 
     await render(
@@ -404,7 +404,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
     await click('tbody tr:nth-child(1)');
 
     testParams.rowClicked = (p) => {
-      assert.equal(p.firstName, 'Tom');
+      assert.strictEqual(p.firstName, 'Tom');
     }
     await rerender();
 
@@ -416,7 +416,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
 
     let testParams = new TestParams();
     testParams.rowClicked = (p) => {
-      assert.equal(p.firstName, 'Miguel');
+      assert.strictEqual(p.firstName, 'Miguel');
     };
 
     await render(
@@ -455,7 +455,7 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
     await click('tbody tr:nth-child(1)');
 
     testParams.rowClicked = (p) => {
-      assert.equal(p.firstName, 'Tom');
+      assert.strictEqual(p.firstName, 'Tom');
     }
     await rerender();
 
@@ -905,28 +905,28 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
       </YetiTable>
     </template>);
 
-    assert.equal(typeof this.tableApi, 'object', 'table is an object');
-    assert.equal(
+    assert.strictEqual(typeof this.tableApi, 'object', 'table is an object');
+    assert.strictEqual(
       typeof this.tableApi.nextPage,
       'function',
       'table.nextPage is a function'
     );
-    assert.equal(
+    assert.strictEqual(
       typeof this.tableApi.previousPage,
       'function',
       'table.previousPage is a function'
     );
-    assert.equal(
+    assert.strictEqual(
       typeof this.tableApi.goToPage,
       'function',
       'table.goToPage is a function'
     );
-    assert.equal(
+    assert.strictEqual(
       typeof this.tableApi.changePageSize,
       'function',
       'table.changePageSize is a function'
     );
-    assert.equal(
+    assert.strictEqual(
       typeof this.tableApi.reloadData,
       'function',
       'table.reloadData is a function'

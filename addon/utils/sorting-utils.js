@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-get */
 import { get } from '@ember/object';
 import { compare, isNone } from '@ember/utils';
 

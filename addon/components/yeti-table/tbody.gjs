@@ -1,5 +1,3 @@
-import Component from '@glimmer/component';
-
 /**
  Renders a `<tbody>` element and yields the row component and data. You must iterate each row
  ```hbs
@@ -30,22 +28,20 @@ import Component from '@glimmer/component';
 import { hash } from '@ember/helper';
 import TBodyRow from 'ember-yeti-table2/components/yeti-table/tbody/row';
 
-export default class TBody extends Component {
-    <template>
-        <tbody class={{@theme.tbody}} ...attributes>
-        {{yield
-            (hash row=(component TBodyRow theme=@theme onClick=@onRowClick columns=@columns))
-            @data
-        }}
-        </tbody>
-    </template>
+<template>
+    <tbody class={{@theme.tbody}} ...attributes>
+    {{yield
+        (hash row=(component TBodyRow theme=@theme onClick=@onRowClick columns=@columns))
+        @data
+    }}
+    </tbody>
+</template>
 
-    /**
-     * Adds a click action to each row, called with the clicked row's data as an argument.
-     * Can be used with both the blockless and block invocations.
-     *
-     * @argument onRowClick
-     * @type Function
-     */
-}
+/**
+ * Adds a click action to each row, called with the clicked row's data as an argument.
+ * Can be used with both the blockless and block invocations.
+ *
+ * @argument onRowClick
+ * @type Function
+ */
 

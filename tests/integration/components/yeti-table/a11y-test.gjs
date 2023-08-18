@@ -4,7 +4,6 @@ import { module, test } from 'qunit';
 
 
 import YetiTable from 'ember-yeti-table2/components/yeti-table';
-import { fn } from '@ember/helper';
 
 module('Integration | Component | yeti-table (a11y)', function (hooks) {
   setupRenderingTest(hooks);

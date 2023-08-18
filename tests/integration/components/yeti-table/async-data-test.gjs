@@ -1,6 +1,5 @@
 import {
   render,
-  rerender,
   clearRender,
   settled,
   click,
@@ -36,7 +35,6 @@ class TestParams {
 
 import YetiTable from 'ember-yeti-table2/components/yeti-table';
 import { on } from '@ember/modifier';
-import { fn } from '@ember/helper';
 import perform from 'ember-concurrency/helpers/perform';
 
 
@@ -871,7 +869,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
     assert.ok(
       spy.secondCall.calledWithMatch({ filterData: { filter: 'Tom' } })
     );
-    assert.equal(hardWorkCounter, 1, 'only did the "hard work" once');
+    assert.strictEqual(hardWorkCounter, 1, 'only did the "hard work" once');
   });
 
   test('reloadData from @registerApi reruns the @loadData function', async function (assert) {
@@ -914,7 +912,7 @@ module('Integration | Component | yeti-table (async)', function (hooks) {
       lastName: 'User',
       points: 12,
     });
-debugger;
+
     testParams.tableApi.reloadData();
     await settled();
 

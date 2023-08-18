@@ -52,7 +52,7 @@ export default class THeadRow extends Component {
         }
 
         cell.column = column;
-        this.cells = [...cells, cell];
+        this.cells = [...this.cells, cell];
 
         return column;
     }

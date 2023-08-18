@@ -116,7 +116,6 @@ import Body from 'ember-yeti-table2/components/yeti-table/body';
 import TBody from 'ember-yeti-table2/components/yeti-table/tbody';
 import TFoot from 'ember-yeti-table2/components/yeti-table/tfoot';
 import Pagination from 'ember-yeti-table2/components/yeti-table/pagination';
-import didUpdate from '@ember/render-modifiers/modifiers/did-update';
 
 export default class YetiTable extends Component {
   <template>
@@ -207,47 +206,42 @@ export default class YetiTable extends Component {
     return this.args.theme ?? {};
   };
 
+  // poor mans resource. Will update eventually
   get fetchData1() {
     this.fetchData();
+    return "";
   }
 
   @action
   async fetchData() {
-    debugger;
     if (this.loadData) {
       this.runLoadData();
     } else {
       // let _fetchData = async (data) => {
       let data = this.data;
-        if (data !== this.oldData) {
-          this.oldData = data;
-          // if (data && data.then) {
-            this.isLoading = true;
-            try {
-              let promise = (typeof data === 'function') ? data() : data;
-              const result = await promise;
-              // check if data is still the same promise
-              if (this.oldData === data) {//  && !this.isDestroyed) {
-                this.resolvedData = result ?? [];
-                this.isLoading = false;
-                notifyPropertyChange(this, 'resolved');
-              }
-            } catch(e) {
-              if (!didCancel(e)) {
-                if (!this.isDestroyed) {
-                  this.isLoading = false;
-                }
-                // re-throw the non-cancellation error
-                throw e;
-              }
+      if (data !== this.oldData) {
+        this.oldData = data;
+
+        this.isLoading = true;
+        try {
+          let promise = (typeof data === 'function') ? data() : data;
+          const result = await promise;
+          // check if data is still the same promise
+          if (this.oldData === data) {//  && !this.isDestroyed) {
+            this.resolvedData = result ?? [];
+            this.isLoading = false;
+            notifyPropertyChange(this, 'resolved');
+          }
+        } catch(e) {
+          if (!didCancel(e)) {
+            if (!this.isDestroyed) {
+              this.isLoading = false;
             }
-          // } else {
-          //   this.resolvedData = data ?? [];
-          // }
+            // re-throw the non-cancellation error
+            throw e;
+          }
         }
-      // }
-      // debugger;
-      // once(this, _fetchData, this.data);
+      }
     }
     return "";
   }
