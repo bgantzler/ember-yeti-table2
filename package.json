@@ -36,7 +36,7 @@
     "ember-template-imports": "^3.4.2"
   },
   "peerDependencies": {
-    "ember-source": ">= 4.0.0"
+    "ember-source": ">=4.0.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.22.6",
@@ -83,6 +83,9 @@
     "stylelint-config-standard": "^33.0.0",
     "stylelint-prettier": "^4.0.2",
     "webpack": "^5.86.0"
+  },
+  "overrides": {
+    "ember-source": "$ember-source"
   },
   "engines": {
     "node": "16.* || >= 18"
