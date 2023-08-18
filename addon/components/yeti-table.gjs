@@ -717,8 +717,6 @@ export default class YetiTable extends Component {
     if (this.pagination) {
       let { pageNumber } = this.paginationData;
       this.pageNumber = Math.max(pageNumber - 1, 1);
-      // TODO: is this needed?
-      // this.runLoadData();
     }
   }
 
@@ -729,8 +727,6 @@ export default class YetiTable extends Component {
 
       if (!isLastPage) {
         this.pageNumber = pageNumber + 1;
-        // TODO: is this needed?
-        // this.runLoadData();
       }
     }
   }
@@ -746,8 +742,6 @@ export default class YetiTable extends Component {
       }
 
       this.pageNumber = pageNumber;
-      // TODO: is this needed?
-      // this.runLoadData();
     }
   }
 
@@ -756,8 +750,6 @@ export default class YetiTable extends Component {
     if (this.pagination) {
       this.pageSize = parseInt(pageSize);
       this.pageSize = parseInt(pageSize);
-      // TODO: is this needed?
-      // this.runLoadData();
     }
   }
 

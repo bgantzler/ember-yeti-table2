@@ -28,11 +28,16 @@ This project is licensed under the [MIT License](LICENSE.md).
 
 # Breaking changes
 
+Component is not exported, it will be available as an import only for templates. However, if you want
+to use it in an hbs, you will need to create the app/component file yourself. If migrating from ember-yeti-table
+and wanting to use both in hbs you should create a file with a different name. This will allow you to use
+both in HBS. The recommended approach would be to use template imports and import this addons version of the 
+component. 
+```js
+export { default } from 'ember-yeti-table2/components/yeti-table';
+```
 ## Glimmer components
 All components are now glimmer. Any dependency on two-way bound arguments are no longer valid.
-Component is not exported, it will be avail as an import only for templates. However, if you want
-to use it in an hbs, you will need to create the app/component file yourself. If migrating and
-wanting to use both, definitely should create the file for the old one.
 
 Because glimmer is not two-way bound, the sort property and pageNumber property will be the initial only. 
 If you wish to change them, you have to supply an onSortChanged or an onPageNumberChanged function and change 
@@ -57,7 +62,6 @@ than totalRows for the same reason.
 
 Sort is initial only. To allow changes, you have to supply an onSortChanged function and change the value passed in
 PageNumber is initial only. To allow changes, you have to supply an onPageNumberChanged function and change the value passed in
-
 
 # ignoreDataChanges
 Before this was able to be turned off by dynamically creating the computed statements. Because tracking is now
