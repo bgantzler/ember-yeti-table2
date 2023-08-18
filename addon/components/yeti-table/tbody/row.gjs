@@ -51,7 +51,7 @@ export default class TBodyRow extends Component {
                         cell=(component Cell theme=@theme parent=this)
                     )}}
         </tr>
-    </template>
+         </template>
 
     /**
      * Adds a click action to the row.
