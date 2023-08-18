@@ -38,7 +38,6 @@ import { tracked } from '@glimmer/tracking';
  @yield {boolean} column.isDescSorted - `true` if column is sorted descending
  */
 import didInsert from '@ember/render-modifiers/modifiers/did-insert';
-import didUpdate from '@ember/render-modifiers/modifiers/did-update';
 import { on } from '@ember/modifier';
 import { fn, hash } from '@ember/helper';
 

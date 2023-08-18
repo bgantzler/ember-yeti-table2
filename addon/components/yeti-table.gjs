@@ -13,7 +13,6 @@ import merge from 'deepmerge';
 import filterData from 'ember-yeti-table2/utils/filtering-utils';
 import { sortMultiple, compareValues, mergeSort } from 'ember-yeti-table2/utils/sorting-utils';
 
-import {arg} from '../decorator/args';
 /**
  * bring ember-concurrency didCancel helper instead of
  * including the whole dependency
@@ -22,46 +21,6 @@ const TASK_CANCELATION_NAME = 'TaskCancelation';
 const didCancel = function (e) {
   return e && e.name === TASK_CANCELATION_NAME;
 };
-
-// import { resourceFactory, use } from 'ember-resources';
-// import { trackedFunction }  from 'ember-resources/util/function';
-// const DataResource = resourceFactory((argsFunc) => {
-//   return trackedFunction(this, async() => {
-//     const argsHash = argsFunc();
-//     if (this.loadData) {
-//       this.runLoadData();
-//     } else {
-//
-//       let data = argsHash.data;
-//       if (data !== this.oldData) {
-//         this.oldData = data;
-//         // if (data && data.then) {
-//           this.isLoading = true;
-//           try {
-//             const result = await data;
-//             // check if data is still the same promise
-//             if (data === this.data && !this.isDestroyed) {
-//               this.resolvedData = result ?? [];
-//               this.isLoading = false;
-//             }
-//           } catch(e) {
-//             if (!didCancel(e)) {
-//               if (!this.isDestroyed) {
-//                 this.isLoading = false;
-//               }
-//               // re-throw the non-cancellation error
-//               throw e;
-//             }
-//           }
-//         // } else {
-//         //   this.resolvedData = data ?? [];
-//         // }
-//       }
-//     }
-//
-//     return this.processedData;
-//   })
-// });
 
 class PaginationData {
   @tracked
@@ -157,9 +116,15 @@ import Body from 'ember-yeti-table2/components/yeti-table/body';
 import TBody from 'ember-yeti-table2/components/yeti-table/tbody';
 import TFoot from 'ember-yeti-table2/components/yeti-table/tfoot';
 import Pagination from 'ember-yeti-table2/components/yeti-table/pagination';
+import didUpdate from '@ember/render-modifiers/modifiers/did-update';
 
 export default class YetiTable extends Component {
   <template>
+    {{this.fetchData1 @loadData @data
+                @pagination @pageNumber @pageSize
+                this.FilterData
+                this.sortData
+    }}
     {{#let (hash
                table=(component Table theme=this.mergedTheme)
                header=(component Header
@@ -225,7 +190,6 @@ export default class YetiTable extends Component {
       {{/if}}
 
     {{/let}}
-    A{{ this.fetchData }}B
   </template>
 
   @tracked
@@ -243,8 +207,11 @@ export default class YetiTable extends Component {
     return this.args.theme ?? {};
   };
 
+  get fetchData1() {
+    this.fetchData();
+  }
+
   @action
-  // poormans helper to re-run data
   async fetchData() {
     debugger;
     if (this.loadData) {
@@ -252,20 +219,18 @@ export default class YetiTable extends Component {
     } else {
       // let _fetchData = async (data) => {
       let data = this.data;
-        debugger;
         if (data !== this.oldData) {
           this.oldData = data;
           // if (data && data.then) {
-          debugger;
             this.isLoading = true;
             try {
               let promise = (typeof data === 'function') ? data() : data;
               const result = await promise;
               // check if data is still the same promise
               if (this.oldData === data) {//  && !this.isDestroyed) {
-                this.resolvedData = result;
+                this.resolvedData = result ?? [];
                 this.isLoading = false;
-                notifyPropertyChange(this, 'filteredData');
+                notifyPropertyChange(this, 'resolved');
               }
             } catch(e) {
               if (!didCancel(e)) {
@@ -296,14 +261,6 @@ export default class YetiTable extends Component {
     return this.args.data;
   }
 
-  // dataResource = use(this, DataResource(() => {
-  //   return {
-  //     data: this.data,
-  //     pageNumber: this.pageNumber,
-  //     pageSize: this.pageSize
-  //   };
-  // }));
-
   /**
    * The function that will be called when Yeti Table needs data. This argument is used
    * when you don't have all the data available or loading all rows at once isn't possible,
@@ -328,7 +285,7 @@ export default class YetiTable extends Component {
     nextPage: this.nextPage,
     goToPage: this.goToPage,
     changePageSize: this.changePageSize,
-    reloadData: this.runLoadData
+    reloadData: this.fetchData
   };
 
   /**
@@ -410,6 +367,28 @@ export default class YetiTable extends Component {
    */
   get filterUsing() {
     return this.args.filterUsing;
+  }
+
+  @cached
+  get filterData() {
+    return {
+      filter: this.filter,
+      filterUsing: this.filterUsing,
+      columnFilters: this.columns.map(c => ({
+        prop: c.prop,
+        filter: c.filter,
+        filterUsing: c.filterUsing
+      })),
+    }
+  }
+
+  @cached
+  get sortData() {
+    return this.columns.filter(c => !isEmpty(c.sort)).map(c => ({
+      prop: c.prop,
+      direction:
+      c.sort
+    }));
   }
 
   /**
@@ -508,7 +487,6 @@ export default class YetiTable extends Component {
 
   @cached
   get normalizedTotalRows() {
-    debugger;
     if (!this.loadData) {
       // sync scenario using @data
       return this.sortedData?.length;
@@ -588,7 +566,6 @@ export default class YetiTable extends Component {
 
   @cached
   get processedData() {
-    debugger;
     if (this.loadData) {
       // skip processing and return raw data if remote data is enabled via `loadData`
       return this.resolvedData;
@@ -603,6 +580,8 @@ export default class YetiTable extends Component {
     if (this.args.registerApi) {
       scheduleOnce('actions', null, this.args.registerApi, this.publicApi);
     }
+
+    this.fetchData1;
   }
 
   @cached
@@ -616,7 +595,7 @@ export default class YetiTable extends Component {
   @cached
   get sortedData() {
     let data = this.filteredData;
-    debugger;
+
     let sortableColumns = this.columns.filter(c => !isEmpty(c.sort));
     let sortings = sortableColumns.map(c => ({ prop: c.prop, direction: c.sort }));
 
@@ -630,54 +609,42 @@ export default class YetiTable extends Component {
   }
 
   runLoadData() {
-    debugger;
     if (isPresent(this.columns) && this.loadData && typeof this.loadData === 'function') {
-        // if (typeof loadData === 'function') {
-          let param = {};
 
-          if (this.pagination) {
-            // cant use this.paginationData, if uses totalRows which could be changed as a result of this call
-            let pageStart = (this.pageNumber - 1) * this.pageSize;
-            param.paginationData = {
-              pageSize: this.pageSize,
-              pageNumber: this.pageNumber,
-              pageStart: pageStart + 1, // make 1 indexed
-              pageEnd: (pageStart + this.pageSize - 1) + 1, // make 1 indexed
-              isFirstPage: this.pageNumber === 1,
-            };
-          }
+      let param = {
+        sortData: this.sortData,
+        filterData: this.filterData,
+      };
 
-          param.sortData = this.columns.filter(c => !isEmpty(c.sort)).map(c => ({ prop: c.prop, direction: c.sort }));
-          param.filterData = {
-            filter: this.filter,
-            filterUsing: this.filterUsing,
-            columnFilters: this.columns.map(c => ({
-              prop: c.prop,
-              filter: c.filter,
-              filterUsing: c.filterUsing
-            }))
-          };
+      if (this.pagination) {
+        // cant use this.paginationData, if uses totalRows which could be changed as a result of this call
+        let pageStart = (this.pageNumber - 1) * this.pageSize;
+        param.paginationData = {
+          pageSize: this.pageSize,
+          pageNumber: this.pageNumber,
+          pageStart: pageStart + 1, // make 1 indexed
+          pageEnd: (pageStart + this.pageSize - 1) + 1, // make 1 indexed
+          isFirstPage: this.pageNumber === 1,
+        };
+      }
+
       let loadDataFunction = async (param) => {
-            this.isLoading = true;
-            try {
-              let resolvedData = await this.loadData(param);
-              if (!this.isDestroyed) {
-                this.resolvedData = resolvedData;
-                this.isLoading = false;
-              }
-            } catch (e) {
-              if (!didCancel(e)) {
-                if (!this.isDestroyed) {
-                  this.isLoading = false;
-                }
-                // re-throw the non-cancelation error
-                throw e;
-              }
+        this.isLoading = true;
+        try {
+          let resolvedData = await this.loadData(param);
+          if (!this.isDestroyed) {
+            this.resolvedData = resolvedData;
+            this.isLoading = false;
+          }
+        } catch (e) {
+          if (!didCancel(e)) {
+            if (!this.isDestroyed) {
+              this.isLoading = false;
             }
-          // } else {
-          //   this.resolvedData = promise;
-          // }
-        // }
+            // re-throw the non-cancelation error
+            throw e;
+          }
+        }
       };
 
       once(this, loadDataFunction, param);

@@ -69,22 +69,9 @@ module('Integration | Component | yeti-table (general)', function (hooks) {
   });
 
   test('body blockless form renders table', async function (assert) {
-    let theme = {
-      table: 'table-1',
-      thead: 'head-1',
-      theadRow: 'head-row-1',
-      theadCell: 'head-cell-1',
-      tbodyRow: 'body-row-1',
-      tbodyCell: 'body-cell-1',
-      tfoot: 'foot-1',
-      tfootRow: 'foot-row-1',
-      tfootCell: 'foot-cell-1',
-    };
-
-
     await render(
     <template>
-      <YetiTable @data={{data}} @theme={{theme}} as |table|>
+      <YetiTable @data={{data}} as |table|>
 
         <table.header as |header|>
           <header.column @prop="firstName">
