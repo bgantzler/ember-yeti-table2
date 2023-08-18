@@ -26,30 +26,41 @@ See the [Contributing](CONTRIBUTING.md) guide for details.
 
 This project is licensed under the [MIT License](LICENSE.md).
 
-## Breaking change.
+# Breaking changes
 
-All components are now glimmer. Any dependancy on two-way bound arguments are no longer valid.
+## Glimmer components
+All components are now glimmer. Any dependency on two-way bound arguments are no longer valid.
 Component is not exported, it will be avail as an import only for templates. However, if you want
 to use it in an hbs, you will need to create the app/component file yourself. If migrating and
 wanting to use both, definitely should create the file for the old one.
 
-# Due to glimmer not being two-way bound and need for DDAU
+Because glimmer is not two-way bound, the sort property and pageNumber property will be the initial only. 
+If you wish to change them, you have to supply an onSortChanged or an onPageNumberChanged function and change 
+the value passed in. 
+
+## Data must be tracked
+
+The computed was built dynamically to look at data and its properties and add the properties referenced to the
+computed dependency list. With glimmer, the data must be marked accordingly with tracked or a notifyPropertyChange
+is issued when the data is altered.
+
+## loadData method and isLastPage, totalRows, TotalPages
+
+The paginationData variable passed to loadData will no longer contain isLastPage, TotalRows and TotalPages.
+You should have the data to calculate these yourself. Since calling loadData could change totalRows, 
+these perperties can no longer be access to pass as params as it woulod cause an infinate loop.
+
+pageNumber will not be minned if greater than totalPages and pageEnd will not be minned if greater 
+than totalRows for the same reason. 
+
+# Due to glimmer components not being two-way bound and need for DDAU
 
 Sort is initial only. To allow changes, you have to supply an onSortChanged function and change the value passed in
 PageNumber is initial only. To allow changes, you have to supply an onPageNumberChanged function and change the value passed in
 
-# Due to reactive natutre, causes an infinite loop
-
-The paginationData variable passed to loadData will no longer contain TotalRows and TotalPages.
-You should have the data to calculate these yourself
-pageNumber will not be minned if greater than number of pages
-pageEnd will not be minned if greater than totalRows
-
-# Data must be tracked
-
-before the computed was built dynamically to look at data and its properties. With glimmer,
-the data must be marked accordingly with tracked or a notifyPropertyChange is issued
 
 # ignoreDataChanges
+Before this was able to be turned off by dynamically creating the computed statements. Because tracking is now
+being used, this can no longer be done. The only way I can think of implementing this feature
+is by you passing in data that is not marked as tracked. Therefor implementing this feature may be work on your part
 
-How to implement?

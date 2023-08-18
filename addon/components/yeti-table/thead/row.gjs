@@ -23,44 +23,47 @@ import Cell from 'ember-yeti-table2/components/yeti-table/thead/row/cell';
 import { hash } from '@ember/helper';
 
 export default class THeadRow extends Component {
-    <template>
-        <tr class="{{@trClass}} {{@theme.theadRow}} {{@theme.row}}" ...attributes>
-            {{yield (hash
-                        column=(component Column
-                            sortable=@sortable
-                            sortSequence=@sortSequence
-                            onClick=@onColumnClick
-                            theme=@theme
-                            parent=@parent
-                        )
-                        cell=(component Cell theme=@theme parent=this)
-                    )}}
-        </tr>
-    </template>
+  <template>
+    <tr class='{{@trClass}} {{@theme.theadRow}} {{@theme.row}}' ...attributes>
+      {{yield
+        (hash
+          column=(component
+            Column
+            sortable=@sortable
+            sortSequence=@sortSequence
+            onClick=@onColumnClick
+            theme=@theme
+            parent=@parent
+          )
+          cell=(component Cell theme=@theme parent=this)
+        )
+      }}
+    </tr>
+  </template>
 
-    @tracked
-    cells = [];
+  @tracked
+  cells = [];
 
-    registerCell(cell) {
-        let column;
+  registerCell(cell) {
+    let column;
 
-        if (cell.prop) {
-            column = this.args.columns.find(c => c.prop === cell.prop);
-        } else {
-            let index = this.cells.length;
-            column = this.args.columns[index];
-        }
-
-        cell.column = column;
-        this.cells = [...this.cells, cell];
-
-        return column;
+    if (cell.prop) {
+      column = this.args.columns.find((c) => c.prop === cell.prop);
+    } else {
+      let index = this.cells.length;
+      column = this.args.columns[index];
     }
 
-    unregisterCell(cell) {
-        let cells = this.cells;
-        let index = cells.indexOf(cell);
+    cell.column = column;
+    this.cells = [...this.cells, cell];
 
-        this.cells = cells.toSpliced(index, 1);
-    }
+    return column;
+  }
+
+  unregisterCell(cell) {
+    let cells = this.cells;
+    let index = cells.indexOf(cell);
+
+    this.cells = cells.toSpliced(index, 1);
+  }
 }

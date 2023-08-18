@@ -26,8 +26,7 @@
  */
 
 <template>
-    <table class={{@theme.table}} ...attributes>
-        {{yield}}
-    </table>
+  <table class={{@theme.table}} ...attributes>
+    {{yield}}
+  </table>
 </template>
-

@@ -24,27 +24,31 @@ import THead from 'ember-yeti-table2/components/yeti-table/thead/row/column';
 import { hash } from '@ember/helper';
 
 class Header extends Component {
-    <template>
-        <thead class={{@theme.thead}} ...attributes>
-            <tr class="{{@trClass}} {{@theme.theadRow}} {{@theme.row}}">
-                {{yield (hash
-                            column=(component THead
-                                sortable=@sortable
-                                sortSequence=@sortSequence
-                                onClick=this.onColumnClickHeader
-                                parent=@parent theme=@theme
-                            )
-                        )}}
-            </tr>
-        </thead>
-    </template>
+  <template>
+    <thead class={{@theme.thead}} ...attributes>
+      <tr class='{{@trClass}} {{@theme.theadRow}} {{@theme.row}}'>
+        {{yield
+          (hash
+            column=(component
+              THead
+              sortable=@sortable
+              sortSequence=@sortSequence
+              onClick=this.onColumnClickHeader
+              parent=@parent
+              theme=@theme
+            )
+          )
+        }}
+      </tr>
+    </thead>
+  </template>
 
-    @action
-    onColumnClickHeader(column, e) {
-        if (this.args.onColumnClick && column.sortable) {
-            this.args.onColumnClick(column, e);
-        }
+  @action
+  onColumnClickHeader(column, e) {
+    if (this.args.onColumnClick && column.sortable) {
+      this.args.onColumnClick(column, e);
     }
+  }
 }
 
 export default Header;

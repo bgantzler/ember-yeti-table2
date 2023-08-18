@@ -43,45 +43,47 @@ import { on } from '@ember/modifier';
 import Cell from 'ember-yeti-table2/components/yeti-table/tbody/row/cell';
 
 export default class TBodyRow extends Component {
+  <template>
+    {{! template-lint-disable no-invalid-interactive }}
+    <tr
+      class='{{@theme.tbodyRow}} {{@theme.row}}'
+      {{on 'click' this.handleClick}}
+      role={{if @onClick 'button'}}
+      ...attributes
+    >
+      {{yield (hash cell=(component Cell theme=@theme parent=this))}}
+    </tr>
+  </template>
 
-    <template>
-        {{!-- template-lint-disable no-invalid-interactive --}}
-        <tr class="{{@theme.tbodyRow}} {{@theme.row}}" {{on "click" this.handleClick}} role={{if @onClick "button"}} ...attributes>
-            {{yield (hash
-                        cell=(component Cell theme=@theme parent=this)
-                    )}}
-        </tr>
-         </template>
+  /**
+   * Adds a click action to the row.
+   *
+   * @argument onClick
+   * @type Function
+   */
 
-    /**
-     * Adds a click action to the row.
-     *
-     * @argument onClick
-     * @type Function
-     */
+  cells = [];
 
-    cells = [];
+  registerCell(cell) {
+    let columns = this.args.columns;
+    let index = this.cells.length;
 
-    registerCell(cell) {
-        let columns = this.args.columns;
-        let index = this.cells.length;
+    let column = columns[index];
 
-        let column = columns[index];
+    this.cells.push(cell);
 
-        this.cells.push(cell);
+    return column;
+  }
 
-        return column;
-    }
+  unregisterCell(cell) {
+    let cells = this.cells;
+    let index = cells.indexOf(cell);
 
-    unregisterCell(cell) {
-        let cells = this.cells;
-        let index = cells.indexOf(cell);
+    cells.splice(index, 1);
+  }
 
-        cells.splice(index, 1);
-    }
-
-    @action
-    handleClick() {
-        this.args.onClick?.(...arguments);
-    }
+  @action
+  handleClick() {
+    this.args.onClick?.(...arguments);
+  }
 }

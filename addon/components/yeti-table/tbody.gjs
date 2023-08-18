@@ -29,12 +29,16 @@ import { hash } from '@ember/helper';
 import TBodyRow from 'ember-yeti-table2/components/yeti-table/tbody/row';
 
 <template>
-    <tbody class={{@theme.tbody}} ...attributes>
+  <tbody class={{@theme.tbody}} ...attributes>
     {{yield
-        (hash row=(component TBodyRow theme=@theme onClick=@onRowClick columns=@columns))
-        @data
+      (hash
+        row=(component
+          TBodyRow theme=@theme onClick=@onRowClick columns=@columns
+        )
+      )
+      @data
     }}
-    </tbody>
+  </tbody>
 </template>
 
 /**
@@ -44,4 +48,3 @@ import TBodyRow from 'ember-yeti-table2/components/yeti-table/tbody/row';
  * @argument onRowClick
  * @type Function
  */
-

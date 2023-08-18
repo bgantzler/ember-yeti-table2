@@ -23,22 +23,20 @@ import { registerDestructor } from '@ember/destroyable';
 
  */
 export default class THeadCell extends Component {
+  <template>
+    {{#if this.column.visible}}
+      <th class='{{@class}} {{@theme.theadCell}}' ...attributes>
+        {{yield}}
+      </th>
+    {{/if}}
+  </template>
 
-    <template>
-        {{#if this.column.visible}}
-            <th class="{{@class}} {{@theme.theadCell}}" ...attributes>
-                {{yield}}
-            </th>
-        {{/if}}
-    </template>
+  // Assigned when the cell is registered
+  column;
 
-    // Assigned when the cell is registered
-    column;
-
-    constructor() {
-        super(...arguments);
-        this.column = this.args.parent?.registerCell(this);
-        registerDestructor(this, () => this.args.parent?.unregisterCell(this));
-    }
+  constructor() {
+    super(...arguments);
+    this.column = this.args.parent?.registerCell(this);
+    registerDestructor(this, () => this.args.parent?.unregisterCell(this));
+  }
 }
-

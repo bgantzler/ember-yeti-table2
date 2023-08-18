@@ -10,20 +10,23 @@ import { registerDestructor } from '@ember/destroyable';
  ```
  */
 export default class TBodyCell extends Component {
-    <template>
-        {{#if this.column.visible}}
-            <td class="{{@class}} {{this.column.columnClass}} {{@theme.tbodyCell}}" ...attributes>
-                {{yield}}
-            </td>
-        {{/if}}
-    </template>
+  <template>
+    {{#if this.column.visible}}
+      <td
+        class='{{@class}} {{this.column.columnClass}} {{@theme.tbodyCell}}'
+        ...attributes
+      >
+        {{yield}}
+      </td>
+    {{/if}}
+  </template>
 
-    // Assigned when the cell is registered
-    column;
+  // Assigned when the cell is registered
+  column;
 
-    constructor() {
-        super(...arguments);
-        this.column = this.args.parent?.registerCell(this);
-        registerDestructor(this, () => this.args.parent?.unregisterCell(this));
-    }
+  constructor() {
+    super(...arguments);
+    this.column = this.args.parent?.registerCell(this);
+    registerDestructor(this, () => this.args.parent?.unregisterCell(this));
+  }
 }

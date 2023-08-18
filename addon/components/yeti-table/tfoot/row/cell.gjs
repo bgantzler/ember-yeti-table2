@@ -1,7 +1,6 @@
 import Component from '@glimmer/component';
 import { registerDestructor } from '@ember/destroyable';
 
-
 /**
  Renders a `<td>` element and yields for the developer to supply content.
 
@@ -18,20 +17,20 @@ import { registerDestructor } from '@ember/destroyable';
  */
 
 export default class TFootCell extends Component {
-    <template>
-        {{#if this.column.visible}}
-            <td class="{{@class}} {{@theme.tfootCell}}" ...attributes>
-                {{yield}}
-            </td>
-        {{/if}}
-    </template>
+  <template>
+    {{#if this.column.visible}}
+      <td class='{{@class}} {{@theme.tfootCell}}' ...attributes>
+        {{yield}}
+      </td>
+    {{/if}}
+  </template>
 
-    column;
+  column;
 
-    constructor() {
-        super(...arguments);
+  constructor() {
+    super(...arguments);
 
-        this.column = this.args.parent?.registerCell(this);
-        registerDestructor(this, () => this.args.parent?.unregisterCell(this));
-    }
+    this.column = this.args.parent?.registerCell(this);
+    registerDestructor(this, () => this.args.parent?.unregisterCell(this));
+  }
 }

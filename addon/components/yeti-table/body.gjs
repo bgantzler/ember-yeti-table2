@@ -34,50 +34,57 @@ import { fn, get, hash } from '@ember/helper';
 import TBodyRow from 'ember-yeti-table2/components/yeti-table/tbody/row';
 
 export default class Body extends Component {
-    <template>
-        <tbody class={{@theme.tbody}} ...attributes>
-        {{#if (has-block)}}
+  <template>
+    <tbody class={{@theme.tbody}} ...attributes>
+      {{#if (has-block)}}
 
-            {{#each @data as |rowData index|}}
-                {{yield
-                    (hash row=(component TBodyRow theme=@theme onClick=@onRowClick columns=@columns))
-                    rowData
-                    index}}
+        {{#each @data as |rowData index|}}
+          {{yield
+            (hash
+              row=(component
+                TBodyRow theme=@theme onClick=@onRowClick columns=@columns
+              )
+            )
+            rowData
+            index
+          }}
+        {{/each}}
+
+      {{else}}
+
+        {{#each @data as |rowData|}}
+          <TBodyRow
+            @theme={{@theme}}
+            @onClick={{if @onRowClick (fn this.handleRowClick rowData)}}
+            @columns={{@columns}}
+            as |row|
+          >
+
+            {{#each @columns as |column|}}
+              <row.cell @class={{column.columnClass}}>
+                {{#if column.prop}}
+                  {{get rowData column.prop}}
+                {{else}}
+                  {{rowData}}
+                {{/if}}
+              </row.cell>
             {{/each}}
 
-        {{else}}
+          </TBodyRow>
+        {{/each}}
+      {{/if}}
+    </tbody>
+  </template>
+  /**
+   * Adds a click action to each row, called with the clicked row's data as an argument.
+   * Can be used with both the blockless and block invocations.
+   *
+   * @argument onRowClick
+   * @type Function
+   */
 
-            {{#each @data as |rowData|}}
-                <TBodyRow
-                @theme={{@theme}}
-                @onClick={{if @onRowClick (fn this.handleRowClick rowData)}} @columns={{@columns}} as |row|>
-
-                {{#each @columns as |column|}}
-                    <row.cell @class={{column.columnClass}}>
-                        {{#if column.prop}}
-                            {{get rowData column.prop}}
-                        {{else}}
-                            {{rowData}}
-                        {{/if}}
-                    </row.cell>
-                {{/each}}
-
-                </TBodyRow>
-            {{/each}}
-        {{/if}}
-        </tbody>
-    </template>
-    /**
-     * Adds a click action to each row, called with the clicked row's data as an argument.
-     * Can be used with both the blockless and block invocations.
-     *
-     * @argument onRowClick
-     * @type Function
-     */
-
-    @action
-    handleRowClick(rowData) {
-        this.args.onRowClick?.(rowData);
-    }
+  @action
+  handleRowClick(rowData) {
+    this.args.onRowClick?.(rowData);
+  }
 }
-

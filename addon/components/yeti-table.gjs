@@ -11,7 +11,11 @@ import { isEmpty, isPresent } from '@ember/utils';
 import merge from 'deepmerge';
 
 import filterData from 'ember-yeti-table2/utils/filtering-utils';
-import { sortMultiple, compareValues, mergeSort } from 'ember-yeti-table2/utils/sorting-utils';
+import {
+  sortMultiple,
+  compareValues,
+  mergeSort,
+} from 'ember-yeti-table2/utils/sorting-utils';
 
 /**
  * bring ember-concurrency didCancel helper instead of
@@ -119,67 +123,77 @@ import Pagination from 'ember-yeti-table2/components/yeti-table/pagination';
 
 export default class YetiTable extends Component {
   <template>
-    {{this.fetchData1 @loadData @data
-                @pagination @pageNumber @pageSize
-                this.FilterData
-                this.sortData
+    {{this.fetchData1
+      @loadData
+      @data
+      @pagination
+      @pageNumber
+      @pageSize
+      this.FilterData
+      this.sortData
     }}
-    {{#let (hash
-               table=(component Table theme=this.mergedTheme)
-               header=(component Header
-                   columns=this.columns
-                   onColumnClick=this.onColumnSort
-                   sortable=this.sortable
-                   sortSequence=this.sortSequence
-                   parent=this
-                   theme=this.mergedTheme
-               )
-               thead=(component THead
-                   columns=this.columns
-                   onColumnClick=this.onColumnSort
-                   sortable=this.sortable
-                   sortSequence=this.sortSequence
-                   theme=this.mergedTheme
-                   parent=this
-               )
-               body=(component Body
-                   data=this.processedData
-                   columns=this.columns
-                   theme=this.mergedTheme
-                   parent=this
-               )
-               tbody=(component TBody
-                   data=this.processedData
-                   columns=this.columns
-                   theme=this.mergedTheme
-                   parent=this
-               )
-               tfoot=(component TFoot
-                   columns=this.columns
-                   theme=this.mergedTheme
-                   parent=this
-               )
-               pagination=(component Pagination
-                   disabled=this.isLoading
-                   theme=this.mergedTheme
-                   paginationData=this.paginationData
-                   paginationActions=(hash
-                       previousPage=this.previousPage
-                       nextPage=this.nextPage
-                       goToPage=this.goToPage
-                       changePageSize=this.changePageSize
-                   )
-               )
-               actions=this.publicApi
-               paginationData=this.paginationData
-               isLoading=this.isLoading
-               columns=this.columns
-               visibleColumns=this.visibleColumns
-               rows=this.normalizedRows
-               totalRows=this.normalizedTotalRows
-               visibleRows=this.processedData
-               theme=this.mergedTheme
-           ) as |api|}}
+    {{#let
+      (hash
+        table=(component Table theme=this.mergedTheme)
+        header=(component
+          Header
+          columns=this.columns
+          onColumnClick=this.onColumnSort
+          sortable=this.sortable
+          sortSequence=this.sortSequence
+          parent=this
+          theme=this.mergedTheme
+        )
+        thead=(component
+          THead
+          columns=this.columns
+          onColumnClick=this.onColumnSort
+          sortable=this.sortable
+          sortSequence=this.sortSequence
+          theme=this.mergedTheme
+          parent=this
+        )
+        body=(component
+          Body
+          data=this.processedData
+          columns=this.columns
+          theme=this.mergedTheme
+          parent=this
+        )
+        tbody=(component
+          TBody
+          data=this.processedData
+          columns=this.columns
+          theme=this.mergedTheme
+          parent=this
+        )
+        tfoot=(component
+          TFoot columns=this.columns theme=this.mergedTheme parent=this
+        )
+        pagination=(component
+          Pagination
+          disabled=this.isLoading
+          theme=this.mergedTheme
+          paginationData=this.paginationData
+          paginationActions=(hash
+            previousPage=this.previousPage
+            nextPage=this.nextPage
+            goToPage=this.goToPage
+            changePageSize=this.changePageSize
+          )
+        )
+        actions=this.publicApi
+        paginationData=this.paginationData
+        isLoading=this.isLoading
+        columns=this.columns
+        visibleColumns=this.visibleColumns
+        rows=this.normalizedRows
+        totalRows=this.normalizedTotalRows
+        visibleRows=this.processedData
+        theme=this.mergedTheme
+      )
+      as |api|
+    }}
       {{#if this.renderTableElement}}
         <api.table ...attributes>
           {{yield api}}
@@ -204,12 +218,12 @@ export default class YetiTable extends Component {
    */
   get theme() {
     return this.args.theme ?? {};
-  };
+  }
 
   // poor mans resource. Will update eventually
   get fetchData1() {
     this.fetchData();
-    return "";
+    return '';
   }
 
   @action
@@ -224,15 +238,16 @@ export default class YetiTable extends Component {
 
         this.isLoading = true;
         try {
-          let promise = (typeof data === 'function') ? data() : data;
+          let promise = typeof data === 'function' ? data() : data;
           const result = await promise;
           // check if data is still the same promise
-          if (this.oldData === data) {//  && !this.isDestroyed) {
+          if (this.oldData === data) {
+            //  && !this.isDestroyed) {
             this.resolvedData = result ?? [];
             this.isLoading = false;
             notifyPropertyChange(this, 'resolved');
           }
-        } catch(e) {
+        } catch (e) {
           if (!didCancel(e)) {
             if (!this.isDestroyed) {
               this.isLoading = false;
@@ -243,7 +258,7 @@ export default class YetiTable extends Component {
         }
       }
     }
-    return "";
+    return '';
   }
 
   /**
@@ -279,7 +294,7 @@ export default class YetiTable extends Component {
     nextPage: this.nextPage,
     goToPage: this.goToPage,
     changePageSize: this.changePageSize,
-    reloadData: this.fetchData
+    reloadData: this.fetchData,
   };
 
   /**
@@ -314,13 +329,14 @@ export default class YetiTable extends Component {
   @tracked
   _pageNumber = this.args.pageNumber ?? 1;
   get pageNumber() {
-    return this.args.onPageNumberChanged ? this.args.pageNumber ?? 1 : this._pageNumber;
+    return this.args.onPageNumberChanged
+      ? this.args.pageNumber ?? 1
+      : this._pageNumber;
   }
   set pageNumber(value) {
     this._pageNumber = value;
     this.args.onPageNumberChanged?.(value);
   }
-
 
   /**
    * Optional argument that informs yeti table of how many rows your data has.
@@ -368,21 +384,22 @@ export default class YetiTable extends Component {
     return {
       filter: this.filter,
       filterUsing: this.filterUsing,
-      columnFilters: this.columns.map(c => ({
+      columnFilters: this.columns.map((c) => ({
         prop: c.prop,
         filter: c.filter,
-        filterUsing: c.filterUsing
+        filterUsing: c.filterUsing,
       })),
-    }
+    };
   }
 
   @cached
   get sortData() {
-    return this.columns.filter(c => !isEmpty(c.sort)).map(c => ({
-      prop: c.prop,
-      direction:
-      c.sort
-    }));
+    return this.columns
+      .filter((c) => !isEmpty(c.sort))
+      .map((c) => ({
+        prop: c.prop,
+        direction: c.sort,
+      }));
   }
 
   /**
@@ -416,7 +433,9 @@ export default class YetiTable extends Component {
    * of strings. Accepted values are `'asc'`, `'desc'` and `'unsorted'`. The default value is `['asc', 'desc']`.
    */
   get sortSequence() {
-    return this.args.sortSequence ?? this.config.sortSequence ?? ['asc', 'desc'];
+    return (
+      this.args.sortSequence ?? this.config.sortSequence ?? ['asc', 'desc']
+    );
   }
 
   /**
@@ -457,7 +476,7 @@ export default class YetiTable extends Component {
    */
   get isColumnVisible() {
     return this.args.isColumnVisible;
-  };
+  }
 
   // If the theme is replaced, this will invalidate, but not if any prop under theme is changed
   get mergedTheme() {
@@ -471,12 +490,16 @@ export default class YetiTable extends Component {
 
   @cached
   get visibleColumns() {
-    return this.columns.filter(item => item.visible === true);
-  };
+    return this.columns.filter((item) => item.visible === true);
+  }
 
   @cached
   get config() {
-    return getOwner(this).resolveRegistration('config:environment')['ember-yeti-table'] || {};
+    return (
+      getOwner(this).resolveRegistration('config:environment')[
+        'ember-yeti-table'
+      ] || {}
+    );
   }
 
   @cached
@@ -541,7 +564,7 @@ export default class YetiTable extends Component {
       isFirstPage,
       isLastPage,
       totalRows,
-      totalPages
+      totalPages,
     });
   }
 
@@ -581,17 +604,26 @@ export default class YetiTable extends Component {
   @cached
   get filteredData() {
     // only columns that have filterable = true and a prop defined will be considered
-    let columns = this.columns.filter(c => c.filterable && isPresent(c.prop));
+    let columns = this.columns.filter((c) => c.filterable && isPresent(c.prop));
 
-    return filterData(this.resolvedData, columns, this.filter, this.filterFunction, this.filterUsing);
+    return filterData(
+      this.resolvedData,
+      columns,
+      this.filter,
+      this.filterFunction,
+      this.filterUsing,
+    );
   }
 
   @cached
   get sortedData() {
     let data = this.filteredData;
 
-    let sortableColumns = this.columns.filter(c => !isEmpty(c.sort));
-    let sortings = sortableColumns.map(c => ({ prop: c.prop, direction: c.sort }));
+    let sortableColumns = this.columns.filter((c) => !isEmpty(c.sort));
+    let sortings = sortableColumns.map((c) => ({
+      prop: c.prop,
+      direction: c.sort,
+    }));
 
     if (sortings.length > 0) {
       data = mergeSort(data, (itemA, itemB) => {
@@ -603,8 +635,11 @@ export default class YetiTable extends Component {
   }
 
   runLoadData() {
-    if (isPresent(this.columns) && this.loadData && typeof this.loadData === 'function') {
-
+    if (
+      isPresent(this.columns) &&
+      this.loadData &&
+      typeof this.loadData === 'function'
+    ) {
       let param = {
         sortData: this.sortData,
         filterData: this.filterData,
@@ -617,7 +652,7 @@ export default class YetiTable extends Component {
           pageSize: this.pageSize,
           pageNumber: this.pageNumber,
           pageStart: pageStart + 1, // make 1 indexed
-          pageEnd: (pageStart + this.pageSize - 1) + 1, // make 1 indexed
+          pageEnd: pageStart + this.pageSize - 1 + 1, // make 1 indexed
           isFirstPage: this.pageNumber === 1,
         };
       }
@@ -654,7 +689,10 @@ export default class YetiTable extends Component {
       // sorting on the sequence.
       direction = column.sort;
       let sortSequence = column.normalizedSortSequence;
-      direction = sortSequence[(sortSequence.indexOf(direction) + 1) % sortSequence.length];
+      direction =
+        sortSequence[
+          (sortSequence.indexOf(direction) + 1) % sortSequence.length
+        ];
 
       if (direction === 'unsorted') {
         direction = null;
@@ -669,10 +707,9 @@ export default class YetiTable extends Component {
 
     if (!e.shiftKey) {
       // if not pressed shift, reset other column sortings
-      let columns = this.columns.filter(c => c !== column);
-      columns.forEach(c => c.sort = null);
+      let columns = this.columns.filter((c) => c !== column);
+      columns.forEach((c) => (c.sort = null));
     }
-
   }
 
   @action
@@ -728,7 +765,8 @@ export default class YetiTable extends Component {
     let columns = this.columns;
     if (!columns.includes(column)) {
       this.columns.push(column);
-      let notifyColumnsPropertyChange = () => notifyPropertyChange(this, 'columns');
+      let notifyColumnsPropertyChange = () =>
+        notifyPropertyChange(this, 'columns');
       once(notifyColumnsPropertyChange);
     }
   }
@@ -736,8 +774,7 @@ export default class YetiTable extends Component {
   unregisterColumn(column) {
     let columns = this.columns;
     if (columns.includes(column)) {
-      this.columns = columns.filter(c => c !== column);
+      this.columns = columns.filter((c) => c !== column);
     }
   }
 }
-

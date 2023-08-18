@@ -17,7 +17,6 @@
  @yield {Component} head.row
  */
 
-
 import { hash } from '@ember/helper';
 import THead from 'ember-yeti-table2/components/yeti-table/thead/row';
 /**
@@ -27,16 +26,19 @@ import THead from 'ember-yeti-table2/components/yeti-table/thead/row';
  * @type Function
  */
 <template>
-    <thead class={{@theme.thead}} ...attributes>
-    {{yield (hash
-                row=(component THead
-                    sortable=@sortable
-                    sortSequence=@sortSequence
-                    onColumnClick=@onColumnClick
-                    columns=@columns
-                    theme=@theme
-                    parent=@parent
-                )
-            )}}
-    </thead>
+  <thead class={{@theme.thead}} ...attributes>
+    {{yield
+      (hash
+        row=(component
+          THead
+          sortable=@sortable
+          sortSequence=@sortSequence
+          onColumnClick=@onColumnClick
+          columns=@columns
+          theme=@theme
+          parent=@parent
+        )
+      )
+    }}
+  </thead>
 </template>
