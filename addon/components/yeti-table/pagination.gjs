@@ -30,6 +30,7 @@ import { on } from '@ember/modifier';
 
 export default class Pagination extends Component {
     <template>
+        {{! template-lint-disable require-input-label }}
         <div class={{@theme.pagination.controls}} ...attributes>
             {{#if this.showInfo}}
                 <div class={{@theme.pagination.info}}>
